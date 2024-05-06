@@ -1,0 +1,6 @@
+pandas
+pyinstaller
+art
+tqdm
+PyQt5
+pyqt5-tools
