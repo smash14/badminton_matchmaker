@@ -7,6 +7,8 @@ if __name__ == '__main__':
     print("===== V0.2 =====")
     print("Maintainer: Bjarne Andersen - b-andersen@arkaris.de")
     print("")
-    MatchPlan = Teams("teams.json")
+    MatchPlan = Teams()
+    MatchPlan.add_team("Honkverein")
+
     pprint(MatchPlan)
 

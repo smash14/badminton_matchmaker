@@ -1,11 +1,11 @@
 import sys
 import json
 import datetime
-from utils import convert_date_string_to_datetime, convert_date_string_list_to_datetime
+from utils import convert_date_string_to_datetime, convert_date_string_list_to_datetime, convert_name_to_variable
 
 class Teams:
     def __init__(self, path_to_teams_file=None):
-        self.teams_json = []
+        self.teams_json = {}
         self.weight = 0
         self.start_date_first_round = datetime.datetime(1970, 1, 1)
         self.start_date_second_round = datetime.datetime(1970, 1, 1)
@@ -54,4 +54,16 @@ class Teams:
             print("")
             print(e)
             return False
+
+    def add_team(self, team_name):
+        self.teams_json[team_name] = {
+            "available_dates_home_matches": [],
+            "blocked_dates_matches": [],
+            "please_dont_play_dates": []
+        }
+
+    #def add_home_match_date(self, team_name, date):
+    #    try:
+    #        self.teams_json[team_name]["available_dates_home_matches"]
+
 
