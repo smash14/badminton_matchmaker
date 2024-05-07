@@ -1,6 +1,7 @@
 from pprint import pprint
 from teamsParser import Teams
 
+
 if __name__ == '__main__':
     print("Ligaman Gui")
     print("===== V0.2 =====")

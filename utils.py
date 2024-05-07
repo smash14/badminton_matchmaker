@@ -12,6 +12,8 @@ def convert_date_string_list_to_datetime(string_list, return_first_entry=False):
 
 
 def convert_date_string_to_datetime(string_date):
+    if string_date == "":
+        return None
     datetime_object = datetime.strptime(string_date, '%Y-%m-%d')
     return datetime_object
 

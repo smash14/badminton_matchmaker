@@ -1,7 +1,7 @@
 import sys
 import json
 import datetime
-
+from utils import convert_date_string_to_datetime, convert_date_string_list_to_datetime
 
 class Teams:
     def __init__(self, path_to_teams_file=None):
@@ -29,15 +29,22 @@ class Teams:
         try:
             parsed_json = json.loads(file_contents)
             self.teams_json = parsed_json['teams']
+            for team in self.teams_json:
+                self.teams_json[team]['available_dates_home_matches'] =\
+                    convert_date_string_list_to_datetime(self.teams_json[team]['available_dates_home_matches'])
+                self.teams_json[team]['blocked_dates_matches'] = \
+                    convert_date_string_list_to_datetime(self.teams_json[team]['blocked_dates_matches'])
+                self.teams_json[team]['please_dont_play_dates'] = \
+                    convert_date_string_list_to_datetime(self.teams_json[team]['please_dont_play_dates'])
             self.weight = parsed_json['weight']
-            self.start_date_first_round = parsed_json['start_date_first_round']
-            self.start_date_second_round = parsed_json['start_date_second_round']
-            self.end_date_first_round = parsed_json['end_date_first_round']
+            self.start_date_first_round = convert_date_string_to_datetime(parsed_json['start_date_first_round'])
+            self.start_date_second_round = convert_date_string_to_datetime(parsed_json['start_date_second_round'])
+            self.end_date_first_round = convert_date_string_to_datetime(parsed_json['end_date_first_round'])
             self.general_blocked_dates = parsed_json['general_blocked_dates']
             self.allow_consecutive_matches = [parsed_json['consecutive_matches']['allow'],
-                                         parsed_json['consecutive_matches']['probability']]
+                                              parsed_json['consecutive_matches']['probability']]
             self.allow_shuffle_matches = [parsed_json['shuffle_matches']['allow'],
-                                     parsed_json['shuffle_matches']['shuffle_part']]
+                                          parsed_json['shuffle_matches']['shuffle_part']]
             self.iterations = parsed_json['max_iterations']
             if self.iterations == 0:
                 self.iterations = sys.maxsize
@@ -46,6 +53,5 @@ class Teams:
             print("Fehler beim Verarbeiten der teams.json Datei mit folgender Fehlermeldung:")
             print("")
             print(e)
-            input("Druecke eine Taste um zu Beenden ...")
-            sys.exit(1)
+            return False
 
