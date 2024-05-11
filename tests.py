@@ -64,6 +64,12 @@ class TestStringMethods(unittest.TestCase):
         expected_teams = ["DreamTeam", "BadTeam", "YetAnotherTeam"]
         self.assertEqual(all_teams, expected_teams)
 
+    def test_get_all_home_match_dates(self):
+        self.MatchPlan = Teams("testdata/teams.json")
+        home_match_dates = self.MatchPlan.show_all_home_match_dates('Oldesloe')
+        expected_dates = ["2023-09-23", "2023-10-01", "2023-11-05", "2023-11-11", "2023-11-19", "2023-12-03",
+                          "2023-12-09", "2024-01-27", "2024-02-12"]
+        self.assertEqual(home_match_dates, expected_dates)
 
 
 

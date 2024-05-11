@@ -14,11 +14,21 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QListView" name="listView_teams">
+   <widget class="QListWidget" name="listWidget_teams">
     <property name="geometry">
      <rect>
-      <x>80</x>
-      <y>80</y>
+      <x>70</x>
+      <y>90</y>
+      <width>256</width>
+      <height>192</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="listWidget_home_match_dates">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>90</y>
       <width>256</width>
       <height>192</height>
      </rect>
