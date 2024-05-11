@@ -151,7 +151,6 @@ class Teams:
                 home_match_dates.append(home_match_date)
         return home_match_dates
 
-
     def add_blocked_match_date(self, team_name, date):
         if not type(date) is datetime.datetime:
             raise TypeError(f"incorrect date type. Expected datetime, got: {type(date)}")
@@ -168,6 +167,15 @@ class Teams:
         except KeyError:
             raise KeyError(f"{team_name} or {date} is not available")
 
+    def show_all_blocked_match_dates(self, team_name, show_as_string=True):
+        blocked_match_dates = []
+        for blocked_match_date in self.teams[team_name]['blocked_dates_matches']:
+            if show_as_string:
+                blocked_match_dates.append(convert_datetime_to_string(blocked_match_date))
+            else:
+                blocked_match_dates.append(blocked_match_date)
+        return blocked_match_dates
+
     def add_unwanted_match_date(self, team_name, date):
         if not type(date) is datetime.datetime:
             raise TypeError(f"incorrect date type. Expected datetime, got: {type(date)}")
@@ -183,6 +191,15 @@ class Teams:
             self.teams[team_name]["please_dont_play_dates"].remove(date)
         except KeyError:
             raise KeyError(f"{team_name} or {date} is not available")
+
+    def show_all_unwanted_match_dates(self, team_name, show_as_string=True):
+        unwanted_match_dates = []
+        for unwanted_match_date in self.teams[team_name]['please_dont_play_dates']:
+            if show_as_string:
+                unwanted_match_dates.append(convert_datetime_to_string(unwanted_match_date))
+            else:
+                unwanted_match_dates.append(unwanted_match_date)
+        return unwanted_match_dates
 
 
 

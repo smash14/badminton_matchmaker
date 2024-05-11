@@ -64,13 +64,22 @@ class TestStringMethods(unittest.TestCase):
         expected_teams = ["DreamTeam", "BadTeam", "YetAnotherTeam"]
         self.assertEqual(all_teams, expected_teams)
 
-    def test_get_all_home_match_dates(self):
+    def test_get_all_match_dates(self):
         self.MatchPlan = Teams("testdata/teams.json")
         home_match_dates = self.MatchPlan.show_all_home_match_dates('Oldesloe')
         expected_dates = ["2023-09-23", "2023-10-01", "2023-11-05", "2023-11-11", "2023-11-19", "2023-12-03",
                           "2023-12-09", "2024-01-27", "2024-02-12"]
         self.assertEqual(home_match_dates, expected_dates)
 
+        blocked_match_dates = self.MatchPlan.show_all_blocked_match_dates('Luebeck')
+        expected_dates = ["2023-09-02", "2023-09-03", "2023-09-09", "2023-09-10", "2023-09-30", "2023-10-01",
+                          "2023-11-11", "2023-11-12"]
+        self.assertEqual(blocked_match_dates, expected_dates)
+
+        unwanted_match_dates = self.MatchPlan.show_all_unwanted_match_dates('Schwarzenbek/Buechen/Muessen')
+        expected_dates = ["2023-09-16", "2023-09-17", "2023-09-30", "2023-10-01", "2023-10-08", "2023-10-28",
+                          "2023-10-29", "2023-11-04", "2023-03-10"]
+        self.assertEqual(unwanted_match_dates, expected_dates)
 
 
 if __name__ == '__main__':
