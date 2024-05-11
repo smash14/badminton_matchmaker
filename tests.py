@@ -1,10 +1,9 @@
 import unittest
 from teamsParser import Teams
+from datetime import datetime
+
 
 class TestStringMethods(unittest.TestCase):
-
-    def setUp(self):
-        self.MatchPlanEmpty = Teams()
 
     def test_plan_types_variables(self):
         self.MatchPlanEmpty = Teams()
@@ -22,6 +21,39 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(type(available_dates_home_matches), list, "available_dates_home_matches is not a list")
         self.assertEqual(type(blocked_dates_matches), list, "blocked_dates_matches is not a list")
         self.assertEqual(type(please_dont_play_dates), list, "please_dont_play_dates is not a list")
+
+    def test_add_date_wrong_format(self):
+        self.MatchPlanEmpty = Teams()
+        testdatetime = datetime.now()
+        self.assertRaises(TypeError, self.MatchPlanEmpty.add_home_match_date, "TeamNotExist", "2024-04-04")
+        self.assertRaises(KeyError, self.MatchPlanEmpty.add_home_match_date, "TeamNotExist", testdatetime)
+
+    def test_sample_match_plan_01(self):
+        date_home_match_team = datetime(2021, 2, 19)
+        date_blocked_match_team = datetime(2020, 5, 22)
+        date_unwanted_match_team = datetime(1999, 9, 10)
+        date_blocked_match_general = datetime(2019, 1, 17)
+        date_start_date_first_round = datetime(2000, 1, 17)
+        date_end_date_first_round = datetime(2001, 8, 30)
+        date_start_date_second_round = datetime(2001, 1, 1)
+        self.MatchPlanEmpty = Teams()
+        self.assertRaises(KeyError, self.MatchPlanEmpty.remove_team, "TeamNotExist")
+        self.MatchPlanEmpty.add_team("DreamTeam")
+        self.MatchPlanEmpty.add_home_match_date("DreamTeam", date_home_match_team)
+        self.MatchPlanEmpty.add_blocked_match_date("DreamTeam", date_blocked_match_team)
+        self.MatchPlanEmpty.add_unwanted_match_date("DreamTeam", date_unwanted_match_team)
+        self.MatchPlanEmpty.add_general_blocked_date(date_blocked_match_general)
+        self.MatchPlanEmpty.set_start_date_first_round(date_start_date_first_round)
+        self.MatchPlanEmpty.set_end_date_first_round(date_end_date_first_round)
+        self.MatchPlanEmpty.set_start_date_second_round(date_start_date_second_round)
+        self.MatchPlanEmpty.save_settings_file("testdata/test_sample_match_plan_01.json")
+
+        with open("testdata/test_sample_match_plan_01.json") as file:
+            file_to_test = file.read()
+        with open("testdata/test_sample_match_plan_01.ref.json") as file:
+            file_ref = file.read()
+        self.assertEqual(file_to_test, file_ref)
+
 
 
 if __name__ == '__main__':
