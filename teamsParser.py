@@ -120,6 +120,12 @@ class Teams:
     def remove_team(self, team_name):
         self.teams.pop(team_name)
 
+    def get_all_teams(self):
+        list_of_all_teams = []
+        for team in self.teams:
+            list_of_all_teams.append(team)
+        return list_of_all_teams
+
     def add_home_match_date(self, team_name, date):
         if not type(date) is datetime.datetime:
             raise TypeError(f"incorrect date type. Expected datetime, got: {type(date)}")
