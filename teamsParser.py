@@ -144,11 +144,14 @@ class Teams:
 
     def show_all_home_match_dates(self, team_name, show_as_string=True):
         home_match_dates = []
-        for home_match_date in self.teams[team_name]['available_dates_home_matches']:
-            if show_as_string:
-                home_match_dates.append(convert_datetime_to_string(home_match_date))
-            else:
-                home_match_dates.append(home_match_date)
+        try:
+            for home_match_date in self.teams[team_name]['available_dates_home_matches']:
+                if show_as_string:
+                    home_match_dates.append(convert_datetime_to_string(home_match_date))
+                else:
+                    home_match_dates.append(home_match_date)
+        except KeyError:
+            pass
         return home_match_dates
 
     def add_blocked_match_date(self, team_name, date):
@@ -169,11 +172,14 @@ class Teams:
 
     def show_all_blocked_match_dates(self, team_name, show_as_string=True):
         blocked_match_dates = []
-        for blocked_match_date in self.teams[team_name]['blocked_dates_matches']:
-            if show_as_string:
-                blocked_match_dates.append(convert_datetime_to_string(blocked_match_date))
-            else:
-                blocked_match_dates.append(blocked_match_date)
+        try:
+            for blocked_match_date in self.teams[team_name]['blocked_dates_matches']:
+                if show_as_string:
+                    blocked_match_dates.append(convert_datetime_to_string(blocked_match_date))
+                else:
+                    blocked_match_dates.append(blocked_match_date)
+        except KeyError:
+            pass
         return blocked_match_dates
 
     def add_unwanted_match_date(self, team_name, date):
@@ -194,11 +200,14 @@ class Teams:
 
     def show_all_unwanted_match_dates(self, team_name, show_as_string=True):
         unwanted_match_dates = []
-        for unwanted_match_date in self.teams[team_name]['please_dont_play_dates']:
-            if show_as_string:
-                unwanted_match_dates.append(convert_datetime_to_string(unwanted_match_date))
-            else:
-                unwanted_match_dates.append(unwanted_match_date)
+        try:
+            for unwanted_match_date in self.teams[team_name]['please_dont_play_dates']:
+                if show_as_string:
+                    unwanted_match_dates.append(convert_datetime_to_string(unwanted_match_date))
+                else:
+                    unwanted_match_dates.append(unwanted_match_date)
+        except KeyError:
+            pass
         return unwanted_match_dates
 
 

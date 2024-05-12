@@ -11,7 +11,7 @@ from teamsParser import Teams
 class Window(QtWidgets.QMainWindow):
     def __init__(self):
         super(Window, self).__init__()
-        self.MatchPlan = Teams("teams.json")
+        self.MatchPlan = Teams()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.show_teams()
@@ -35,12 +35,13 @@ class Window(QtWidgets.QMainWindow):
 
     def remove_team(self):
         current_index = self.ui.listWidget_teams.currentRow()
-        team = self.ui.listWidget_teams.item(current_index).text()
-        button = QMessageBox.warning(self, "Löschen bestätigen", "Verein und alle zugehörigen Daten entfernen?",
-                                 buttons=QMessageBox.Ok | QMessageBox.Discard)
-        if button == QMessageBox.Ok:
-            self.MatchPlan.remove_team(team)
-        self.show_teams()
+        if current_index != -1:
+            team = self.ui.listWidget_teams.item(current_index).text()
+            button = QMessageBox.warning(self, "Löschen bestätigen", "Verein und alle zugehörigen Daten entfernen?",
+                                     buttons=QMessageBox.Ok | QMessageBox.Discard)
+            if button == QMessageBox.Ok:
+                self.MatchPlan.remove_team(team)
+            self.show_teams()
 
     def show_home_match_dates(self):
         current_index = self.ui.listWidget_teams.currentRow()
