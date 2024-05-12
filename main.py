@@ -50,7 +50,8 @@ class Window(QtWidgets.QMainWindow):
         if team is not None:
             self.ui.listWidget_home_match_dates.clear()
             self.ui.listWidget_home_match_dates.addItems(
-                self.MatchPlan.show_all_home_match_dates(team, show_as_string=True, date_format=self.display_date_format))
+                self.MatchPlan.show_all_home_match_dates(team, show_as_string=True,
+                                                         date_format=self.display_date_format))
 
     def show_blocked_match_dates(self):
         current_index = self.ui.listWidget_teams.currentRow()
@@ -58,7 +59,8 @@ class Window(QtWidgets.QMainWindow):
         if team is not None:
             self.ui.listWidget_blocked_match_dates.clear()
             self.ui.listWidget_blocked_match_dates.addItems(
-                self.MatchPlan.show_all_blocked_match_dates(team, show_as_string=True))
+                self.MatchPlan.show_all_blocked_match_dates(team, show_as_string=True,
+                                                            date_format=self.display_date_format))
 
     def show_unwanted_match_dates(self):
         current_index = self.ui.listWidget_teams.currentRow()
@@ -66,7 +68,8 @@ class Window(QtWidgets.QMainWindow):
         if team is not None:
             self.ui.listWidget_unwanted_match_dates.clear()
             self.ui.listWidget_unwanted_match_dates.addItems(
-                self.MatchPlan.show_all_unwanted_match_dates(team, show_as_string=True))
+                self.MatchPlan.show_all_unwanted_match_dates(team, show_as_string=True,
+                                                             date_format=self.display_date_format))
 
 
 

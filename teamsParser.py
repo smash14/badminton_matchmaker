@@ -175,12 +175,12 @@ class Teams:
             raise KeyError(f"{team_name} or {date} is not available")
         self._sort_all_datetime_lists()
 
-    def show_all_blocked_match_dates(self, team_name, show_as_string=True):
+    def show_all_blocked_match_dates(self, team_name, show_as_string=True, date_format='%Y-%m-%d'):
         blocked_match_dates = []
         try:
             for blocked_match_date in self.teams[team_name]['blocked_dates_matches']:
                 if show_as_string:
-                    blocked_match_dates.append(convert_datetime_to_string(blocked_match_date))
+                    blocked_match_dates.append(convert_datetime_to_string(blocked_match_date, date_format))
                 else:
                     blocked_match_dates.append(blocked_match_date)
         except KeyError:
@@ -205,12 +205,12 @@ class Teams:
             raise KeyError(f"{team_name} or {date} is not available")
         self._sort_all_datetime_lists()
 
-    def show_all_unwanted_match_dates(self, team_name, show_as_string=True):
+    def show_all_unwanted_match_dates(self, team_name, show_as_string=True, date_format='%Y-%m-%d'):
         unwanted_match_dates = []
         try:
             for unwanted_match_date in self.teams[team_name]['please_dont_play_dates']:
                 if show_as_string:
-                    unwanted_match_dates.append(convert_datetime_to_string(unwanted_match_date))
+                    unwanted_match_dates.append(convert_datetime_to_string(unwanted_match_date, date_format))
                 else:
                     unwanted_match_dates.append(unwanted_match_date)
         except KeyError:
