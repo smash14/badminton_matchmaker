@@ -81,6 +81,17 @@ class TestStringMethods(unittest.TestCase):
                           "2023-10-29", "2023-11-04", "2023-03-10"]
         self.assertEqual(unwanted_match_dates, expected_dates)
 
+    def test_remove_team_01(self):
+        self.MatchPlan = Teams("testdata/teams.json")
+        self.MatchPlan.remove_team('Luebeck')
+
+        self.MatchPlan.save_settings_file("testdata/test_remove_team_01.json")
+        with open("testdata/test_remove_team_01.json") as file:
+            file_to_test = file.read()
+        with open("testdata/test_remove_team_01.ref.json") as file:
+            file_ref = file.read()
+        self.assertEqual(file_to_test, file_ref)
+
 
 if __name__ == '__main__':
     unittest.main()

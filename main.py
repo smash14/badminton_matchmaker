@@ -19,9 +19,28 @@ class Window(QtWidgets.QMainWindow):
         self.ui.listWidget_teams.itemSelectionChanged.connect(self.show_blocked_match_dates)
         self.ui.listWidget_teams.itemSelectionChanged.connect(self.show_unwanted_match_dates)
 
+        self.ui.pushButton_add_team.clicked.connect(self.add_team)
+        self.ui.pushButton_remove_team.clicked.connect(self.remove_team)
+
     def show_teams(self):
+        self.ui.listWidget_teams.clear()
         self.ui.listWidget_teams.addItems(self.MatchPlan.get_all_teams())
         self.ui.listWidget_teams.setCurrentRow(0)
+
+    def add_team(self):
+        text, ok = QInputDialog.getText(self, "Neue Mannschaft anlegen", "Mannschaftsname")
+        if ok and text is not None:
+            self.MatchPlan.add_team(text)
+        self.show_teams()
+
+    def remove_team(self):
+        current_index = self.ui.listWidget_teams.currentRow()
+        team = self.ui.listWidget_teams.item(current_index).text()
+        button = QMessageBox.warning(self, "Löschen bestätigen", "Verein und alle zugehörigen Daten entfernen?",
+                                 buttons=QMessageBox.Ok | QMessageBox.Discard)
+        if button == QMessageBox.Ok:
+            self.MatchPlan.remove_team(team)
+        self.show_teams()
 
     def show_home_match_dates(self):
         current_index = self.ui.listWidget_teams.currentRow()

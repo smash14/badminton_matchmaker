@@ -9,9 +9,9 @@ class Teams:
     def __init__(self, path_to_teams_file=None):
         self.max_iterations = 99
         self.return_on_first_match_plan = False
-        self.start_date_first_round = datetime.datetime(1970, 1, 1)
-        self.end_date_first_round = datetime.datetime(1970, 1, 1)
-        self.start_date_second_round = datetime.datetime(1970, 1, 1)
+        self.start_date_first_round = None
+        self.end_date_first_round = None
+        self.start_date_second_round = None
         self.general_blocked_dates = []
         self.consecutive_matches = {'allow': 1, 'probability': 50}
         self.shuffle_matches = {'allow': 1, 'shuffle_part': 0.4}
@@ -52,10 +52,10 @@ class Teams:
             self.weight = parsed_json['weight']
 
             self.general_blocked_dates = parsed_json['general_blocked_dates']
-            self.consecutive_matches = [parsed_json['consecutive_matches']['allow'],
-                                        parsed_json['consecutive_matches']['probability']]
-            self.shuffle_matches = [parsed_json['shuffle_matches']['allow'],
-                                    parsed_json['shuffle_matches']['shuffle_part']]
+            self.consecutive_matches = {'allow': parsed_json['consecutive_matches']['allow'],
+                                        'probability': parsed_json['consecutive_matches']['probability']}
+            self.shuffle_matches = {'allow': parsed_json['shuffle_matches']['allow'],
+                                    'shuffle_part': parsed_json['shuffle_matches']['shuffle_part']}
             if self.max_iterations == 0:
                 self.max_iterations = sys.maxsize
         except Exception as e:
@@ -75,8 +75,8 @@ class Teams:
         export_plan['consecutive_matches'] = self.consecutive_matches
         export_plan['shuffle_matches'] = self.shuffle_matches
         export_plan['weight'] = self.weight
+        export_plan['teams'] = {}
         for team in self.teams:
-            export_plan['teams'] = {}
             export_plan['teams'][team] = {}
             export_plan['teams'][team]['available_dates_home_matches'] = \
                 convert_datetime_list_to_string(self.teams[team]['available_dates_home_matches'])

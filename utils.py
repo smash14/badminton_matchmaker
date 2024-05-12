@@ -60,5 +60,7 @@ def convert_datetime_to_string(datetime_object):
     :param datetime_object: datetime object
     :return: date/time string of format YYYY-mm-dd
     """
+    if datetime_object is None:
+        return ""
     datetime_string = datetime_object.strftime('%Y-%m-%d')
     return datetime_string

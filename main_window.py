@@ -29,6 +29,12 @@ class Ui_MainWindow(object):
         self.listWidget_unwanted_match_dates = QtWidgets.QListWidget(self.centralwidget)
         self.listWidget_unwanted_match_dates.setGeometry(QtCore.QRect(650, 90, 151, 192))
         self.listWidget_unwanted_match_dates.setObjectName("listWidget_unwanted_match_dates")
+        self.pushButton_add_team = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_add_team.setGeometry(QtCore.QRect(70, 290, 101, 23))
+        self.pushButton_add_team.setObjectName("pushButton_add_team")
+        self.pushButton_remove_team = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_remove_team.setGeometry(QtCore.QRect(180, 290, 101, 23))
+        self.pushButton_remove_team.setObjectName("pushButton_remove_team")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1043, 21))
@@ -44,3 +50,5 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.pushButton_add_team.setText(_translate("MainWindow", "Verein hinzufügen"))
+        self.pushButton_remove_team.setText(_translate("MainWindow", "Verein entfernen"))
