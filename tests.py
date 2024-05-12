@@ -92,6 +92,15 @@ class TestStringMethods(unittest.TestCase):
             file_ref = file.read()
         self.assertEqual(file_to_test, file_ref)
 
+    def test_sort_lists_01(self):
+        self.MatchPlan = Teams("testdata/test_sort_lists_unsorted_01.ref.json")
+        self.MatchPlan.save_settings_file("testdata/test_sort_lists_sorted_01.json")
+        with open("testdata/test_sort_lists_sorted_01.json") as file:
+            file_to_test = file.read()
+        with open("testdata/test_sort_lists_sorted_01.ref.json") as file:
+            file_ref = file.read()
+        self.assertEqual(file_to_test, file_ref)
+
 
 if __name__ == '__main__':
     unittest.main()

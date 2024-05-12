@@ -11,10 +11,11 @@ from teamsParser import Teams
 class Window(QtWidgets.QMainWindow):
     def __init__(self):
         super(Window, self).__init__()
-        self.MatchPlan = Teams()
+        self.MatchPlan = Teams("teams.json")
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.show_teams()
+        self.display_date_format = '%d.%m.%Y'
         self.ui.listWidget_teams.itemSelectionChanged.connect(self.show_home_match_dates)
         self.ui.listWidget_teams.itemSelectionChanged.connect(self.show_blocked_match_dates)
         self.ui.listWidget_teams.itemSelectionChanged.connect(self.show_unwanted_match_dates)
@@ -49,7 +50,7 @@ class Window(QtWidgets.QMainWindow):
         if team is not None:
             self.ui.listWidget_home_match_dates.clear()
             self.ui.listWidget_home_match_dates.addItems(
-                self.MatchPlan.show_all_home_match_dates(team, show_as_string=True))
+                self.MatchPlan.show_all_home_match_dates(team, show_as_string=True, date_format=self.display_date_format))
 
     def show_blocked_match_dates(self):
         current_index = self.ui.listWidget_teams.currentRow()

@@ -51,13 +51,14 @@ class Teams:
                     convert_date_string_list_to_datetime(teams_json[team]['please_dont_play_dates'])
             self.weight = parsed_json['weight']
 
-            self.general_blocked_dates = parsed_json['general_blocked_dates']
+            self.general_blocked_dates = convert_date_string_list_to_datetime(parsed_json['general_blocked_dates'])
             self.consecutive_matches = {'allow': parsed_json['consecutive_matches']['allow'],
                                         'probability': parsed_json['consecutive_matches']['probability']}
             self.shuffle_matches = {'allow': parsed_json['shuffle_matches']['allow'],
                                     'shuffle_part': parsed_json['shuffle_matches']['shuffle_part']}
             if self.max_iterations == 0:
                 self.max_iterations = sys.maxsize
+            self._sort_all_datetime_lists()
         except Exception as e:
             print("Fehler beim Verarbeiten der teams.json Datei mit folgender Fehlermeldung:")
             print("")
@@ -133,6 +134,7 @@ class Teams:
             self.teams[team_name]["available_dates_home_matches"].append(date)
         except KeyError:
             raise KeyError(f"{team_name} is not available")
+        self._sort_all_datetime_lists()
 
     def remove_home_match_date(self, team_name, date):
         if not type(date) is datetime.datetime:
@@ -141,13 +143,14 @@ class Teams:
             self.teams[team_name]["available_dates_home_matches"].remove(date)
         except KeyError:
             raise KeyError(f"{team_name} or {date} is not available")
+        self._sort_all_datetime_lists()
 
-    def show_all_home_match_dates(self, team_name, show_as_string=True):
+    def show_all_home_match_dates(self, team_name, show_as_string=True, date_format='%Y-%m-%d'):
         home_match_dates = []
         try:
             for home_match_date in self.teams[team_name]['available_dates_home_matches']:
                 if show_as_string:
-                    home_match_dates.append(convert_datetime_to_string(home_match_date))
+                    home_match_dates.append(convert_datetime_to_string(home_match_date, date_format))
                 else:
                     home_match_dates.append(home_match_date)
         except KeyError:
@@ -161,6 +164,7 @@ class Teams:
             self.teams[team_name]["blocked_dates_matches"].append(date)
         except KeyError:
             raise KeyError(f"{team_name} is not available")
+        self._sort_all_datetime_lists()
 
     def remove_blocked_match_date(self, team_name, date):
         if not type(date) is datetime.datetime:
@@ -169,6 +173,7 @@ class Teams:
             self.teams[team_name]["blocked_dates_matches"].remove(date)
         except KeyError:
             raise KeyError(f"{team_name} or {date} is not available")
+        self._sort_all_datetime_lists()
 
     def show_all_blocked_match_dates(self, team_name, show_as_string=True):
         blocked_match_dates = []
@@ -189,6 +194,7 @@ class Teams:
             self.teams[team_name]["please_dont_play_dates"].append(date)
         except KeyError:
             raise KeyError(f"{team_name} is not available")
+        self._sort_all_datetime_lists()
 
     def remove_unwanted_match_date(self, team_name, date):
         if not type(date) is datetime:
@@ -197,6 +203,7 @@ class Teams:
             self.teams[team_name]["please_dont_play_dates"].remove(date)
         except KeyError:
             raise KeyError(f"{team_name} or {date} is not available")
+        self._sort_all_datetime_lists()
 
     def show_all_unwanted_match_dates(self, team_name, show_as_string=True):
         unwanted_match_dates = []
@@ -209,6 +216,14 @@ class Teams:
         except KeyError:
             pass
         return unwanted_match_dates
+
+    def _sort_all_datetime_lists(self):
+        self.general_blocked_dates.sort()
+        for team in self.teams:
+            self.teams[team]['available_dates_home_matches'].sort()
+            self.teams[team]['blocked_dates_matches'].sort()
+            self.teams[team]['please_dont_play_dates'].sort()
+
 
 
 

@@ -1,0 +1,44 @@
+{
+  "max_iterations": 10000,
+  "return_on_first_match_plan": true,
+  "start_date_first_round": "",
+  "end_date_first_round": "",
+  "start_date_second_round": "2024-01-01",
+  "general_blocked_dates": [
+    "2024-01-01",
+	"2022-12-12",
+	"2025-04-04",
+	"2024-01-02",
+	"2024-02-01"
+  ],
+  "consecutive_matches": {
+    "allow": 1,
+    "probability": 50
+  },
+  "shuffle_matches": {
+    "allow": 1,
+    "shuffle_part": 0.4
+  },
+  "weight": {
+    "amount_consecutive_matches": 1,
+    "distribution_home_away_matches": 1,
+    "amount_please_dont_play_dates": 10,
+    "distribution_game_days": 100
+  },
+  "teams": {
+    "Heiligenhafen": {
+      "available_dates_home_matches": [
+        "2020-01-01",
+        "2019-10-08",
+        "2019-10-07"
+      ],
+      "blocked_dates_matches": [
+        "2030-12-31",
+        "2001-01-01",
+        "2000-01-01",
+        "2023-11-25"
+      ],
+      "please_dont_play_dates": []
+    }
+  }
+}
