@@ -28,6 +28,10 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.pushButton_add_home_match_date.clicked.connect(self.add_home_match_date)
         self.ui.pushButton_remove_home_match_date.clicked.connect(self.remove_home_match_date)
+        self.ui.pushButton_add_blocked_match_date.clicked.connect(self.add_blocked_match_date)
+        self.ui.pushButton_remove_blocked_match_date.clicked.connect(self.remove_blocked_match_date)
+        self.ui.pushButton_add_unwanted_match_date.clicked.connect(self.add_unwanted_match_date)
+        self.ui.pushButton_remove_unwanted_match_date.clicked.connect(self.remove_unwanted_match_date)
 
         self.show_teams()
 
@@ -90,11 +94,39 @@ class Window(QtWidgets.QMainWindow):
             self.MatchPlan.show_all_blocked_match_dates(self.current_selection_team, show_as_string=True,
                                                         date_format=self.display_date_format))
 
+    def add_blocked_match_date(self):
+        selected_date_qt = self.ui.dateEdit_blocked_match_date.date().getDate()  # Year, Month, Day
+        selected_date = convert_qt_date_to_datetime(selected_date_qt)
+        self.MatchPlan.add_blocked_match_date(self.current_selection_team, selected_date)
+        self.show_blocked_match_dates()
+
+    def remove_blocked_match_date(self):
+        current_index = self.ui.listWidget_blocked_match_dates.currentRow()
+        if current_index != -1:
+            date_string = self.ui.listWidget_blocked_match_dates.item(current_index).text()
+            date_object = convert_date_string_to_datetime(date_string, date_format=self.display_date_format)
+            self.MatchPlan.remove_blocked_match_date(self.current_selection_team, date_object)
+            self.show_blocked_match_dates()
+
     def show_unwanted_match_dates(self):
         self.ui.listWidget_unwanted_match_dates.clear()
         self.ui.listWidget_unwanted_match_dates.addItems(
             self.MatchPlan.show_all_unwanted_match_dates(self.current_selection_team, show_as_string=True,
                                                          date_format=self.display_date_format))
+
+    def add_unwanted_match_date(self):
+        selected_date_qt = self.ui.dateEdit_unwanted_match_date.date().getDate()  # Year, Month, Day
+        selected_date = convert_qt_date_to_datetime(selected_date_qt)
+        self.MatchPlan.add_unwanted_match_date(self.current_selection_team, selected_date)
+        self.show_unwanted_match_dates()
+
+    def remove_unwanted_match_date(self):
+        current_index = self.ui.listWidget_unwanted_match_dates.currentRow()
+        if current_index != -1:
+            date_string = self.ui.listWidget_unwanted_match_dates.item(current_index).text()
+            date_object = convert_date_string_to_datetime(date_string, date_format=self.display_date_format)
+            self.MatchPlan.remove_unwanted_match_date(self.current_selection_team, date_object)
+            self.show_unwanted_match_dates()
 
 
 def app():

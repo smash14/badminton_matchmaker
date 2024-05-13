@@ -198,7 +198,7 @@ class Teams:
         self._sort_all_datetime_lists()
 
     def remove_unwanted_match_date(self, team_name, date):
-        if not type(date) is datetime:
+        if not type(date) is datetime.datetime:
             raise TypeError(f"incorrect date type. Expected datetime, got: {type(date)}")
         try:
             self.teams[team_name]["please_dont_play_dates"].remove(date)
