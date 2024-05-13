@@ -40,16 +40,17 @@ def convert_datetime_list_to_string(datetime_list):
     return string_list
 
 
-def convert_date_string_to_datetime(string_date):
+def convert_date_string_to_datetime(string_date, date_format='%Y-%m-%d'):
     """
     string -> datetime
     convert string to datetime object
     :param string_date: date/time string of format YYYY-mm-dd
+    :param date_format: format of datetime string
     :return: datetime object
     """
     if string_date == "":
         return None
-    datetime_object = datetime.strptime(string_date, '%Y-%m-%d')
+    datetime_object = datetime.strptime(string_date, date_format)
     return datetime_object
 
 
@@ -65,3 +66,13 @@ def convert_datetime_to_string(datetime_object, date_format='%Y-%m-%d'):
         return ""
     datetime_string = datetime_object.strftime(date_format)
     return datetime_string
+
+
+def convert_qt_date_to_datetime(qt_date):
+    """
+    converts Qt date tuple to datetime object
+    :param qt_date: Qt date tuple (Year, Month, Day)
+    :return: datetime object
+    """
+    year, month, day = qt_date
+    return datetime(year, month, day)

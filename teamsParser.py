@@ -131,7 +131,8 @@ class Teams:
         if not type(date) is datetime.datetime:
             raise TypeError(f"incorrect date type. Expected datetime, got: {type(date)}")
         try:
-            self.teams[team_name]["available_dates_home_matches"].append(date)
+            if date not in self.teams[team_name]["available_dates_home_matches"]:
+                self.teams[team_name]["available_dates_home_matches"].append(date)
         except KeyError:
             raise KeyError(f"{team_name} is not available")
         self._sort_all_datetime_lists()

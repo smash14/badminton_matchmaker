@@ -29,7 +29,7 @@
      <rect>
       <x>330</x>
       <y>90</y>
-      <width>151</width>
+      <width>181</width>
       <height>192</height>
      </rect>
     </property>
@@ -37,7 +37,7 @@
    <widget class="QListWidget" name="listWidget_blocked_match_dates">
     <property name="geometry">
      <rect>
-      <x>490</x>
+      <x>520</x>
       <y>90</y>
       <width>151</width>
       <height>192</height>
@@ -47,7 +47,7 @@
    <widget class="QListWidget" name="listWidget_unwanted_match_dates">
     <property name="geometry">
      <rect>
-      <x>650</x>
+      <x>680</x>
       <y>90</y>
       <width>151</width>
       <height>192</height>
@@ -83,7 +83,7 @@
    <widget class="QPushButton" name="pushButton_add_home_match_date">
     <property name="geometry">
      <rect>
-      <x>330</x>
+      <x>440</x>
       <y>290</y>
       <width>31</width>
       <height>31</height>
@@ -96,7 +96,7 @@
    <widget class="QPushButton" name="pushButton_remove_home_match_date">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>480</x>
       <y>290</y>
       <width>31</width>
       <height>31</height>
@@ -104,6 +104,19 @@
     </property>
     <property name="text">
      <string>-</string>
+    </property>
+   </widget>
+   <widget class="QDateEdit" name="dateEdit_home_match_date">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>290</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="calendarPopup">
+     <bool>true</bool>
     </property>
    </widget>
   </widget>
