@@ -1,6 +1,11 @@
-from PyQt5 import QtWidgets
+import os.path
+
+from PyQt5 import QtWidgets, QtCore, uic
+from PyQt5.QtCore import QDate
 from PyQt5.QtWidgets import QInputDialog, QLineEdit, QMessageBox
+import subprocess
 from main_window import Ui_MainWindow
+from datetime import datetime
 from utils import convert_qt_date_to_datetime, convert_date_string_to_datetime
 
 import sys
@@ -8,6 +13,8 @@ import sys
 from pprint import pprint
 from teamsParser import Teams
 
+def p(x):
+    print (x)
 
 class Window(QtWidgets.QMainWindow):
     def __init__(self):
@@ -21,11 +28,18 @@ class Window(QtWidgets.QMainWindow):
         self.current_selection_blocked_match_date = None
         self.current_selection_unwanted_match_date = None
 
-        self.ui.listWidget_teams.itemSelectionChanged.connect(self.update_selected_team)
+        # Set Date and Time to Date Edits
+        self.today = datetime.today()
+        self.ui.dateEdit_home_match_date.setDate(QDate(self.today.year, self.today.month, self.today.day))
+        self.ui.dateEdit_blocked_match_date.setDate(QDate(self.today.year, self.today.month, self.today.day))
+        self.ui.dateEdit_unwanted_match_date.setDate(QDate(self.today.year, self.today.month, self.today.day))
 
+        # Connection if user clicks on teams
+        self.ui.listWidget_teams.itemSelectionChanged.connect(self.update_selected_team)
         self.ui.pushButton_add_team.clicked.connect(self.add_team)
         self.ui.pushButton_remove_team.clicked.connect(self.remove_team)
 
+        # Connection if user wants to add any match dates (home, blocked, unwanted)
         self.ui.pushButton_add_home_match_date.clicked.connect(self.add_home_match_date)
         self.ui.pushButton_remove_home_match_date.clicked.connect(self.remove_home_match_date)
         self.ui.pushButton_add_blocked_match_date.clicked.connect(self.add_blocked_match_date)
@@ -33,7 +47,35 @@ class Window(QtWidgets.QMainWindow):
         self.ui.pushButton_add_unwanted_match_date.clicked.connect(self.add_unwanted_match_date)
         self.ui.pushButton_remove_unwanted_match_date.clicked.connect(self.remove_unwanted_match_date)
 
+        # Connection to create match plan
+        self.ui.pushButton_generate_matchplan.clicked.connect(self.generate_match_plan)
+
+        print('Connecting process')
+        self.process = QtCore.QProcess(self)
+        self.process.readyRead.connect(self.stdoutReady)  # alternative to use print('',flush=True) instead of stdout
+
+        # self.process.readyReadStandardOutput.connect(self.stdoutReady)
+        # self.process.readyReadStandardError.connect(self.stderrReady)
+        self.process.started.connect(lambda: p('Started!'))
+        self.process.finished.connect(lambda: p('Finished!'))
+
         self.show_teams()
+
+    def append(self, text):
+        cursor = self.ui.textEdit_ligaman_pro_output.textCursor()
+        cursor.movePosition(cursor.End)
+        cursor.insertText(text)
+        # self.output.ensureCursorVisible()
+
+    def stdoutReady(self):
+        text = str(self.process.readAllStandardOutput())
+        #print(text.strip())
+        self.append('\n' + text)
+
+    def stderrReady(self):
+        text = str(self.process.readAllStandardError())
+        # print (text.strip())
+        self.append(text)
 
     def update_selected_team(self):
         current_index = self.ui.listWidget_teams.currentRow()
@@ -127,6 +169,12 @@ class Window(QtWidgets.QMainWindow):
             date_object = convert_date_string_to_datetime(date_string, date_format=self.display_date_format)
             self.MatchPlan.remove_unwanted_match_date(self.current_selection_team, date_object)
             self.show_unwanted_match_dates()
+
+    def generate_match_plan(self):
+        self.MatchPlan.save_settings_file("tools/teams.json")
+        print('Starting process')
+        filename = os.path.join("tools", "ligaman_pro.exe")
+        self.process.start(filename)
 
 
 def app():
