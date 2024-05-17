@@ -1,3 +1,4 @@
+import os
 import sys
 import json
 import datetime
@@ -88,6 +89,19 @@ class Teams:
         json_object = json.dumps(export_plan, indent=2)
         with open(path_to_file, "w") as outfile:
             outfile.write(json_object)
+            print(f"Settings File written to {path_to_file}")
+
+    @staticmethod
+    def remove_settings_file(path_to_file):
+        try:
+            os.remove(path_to_file)
+            print(f"File '{path_to_file}' deleted successfully.")
+        except FileNotFoundError:
+            print(f"File '{path_to_file}' not found.")
+
+    @staticmethod
+    def check_for_settings_file(path_to_file):
+        return os.path.exists(path_to_file)
 
     def set_start_date_first_round(self, date):
         self.start_date_first_round = date

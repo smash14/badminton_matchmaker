@@ -2,24 +2,24 @@ import os.path
 
 from PyQt5 import QtWidgets, QtCore, uic
 from PyQt5.QtCore import QDate
-from PyQt5.QtWidgets import QInputDialog, QLineEdit, QMessageBox
-import subprocess
+from PyQt5.QtWidgets import QInputDialog, QMessageBox, QFileDialog
 from main_window import Ui_MainWindow
 from datetime import datetime
-from utils import convert_qt_date_to_datetime, convert_date_string_to_datetime
-
+from utils import convert_qt_date_to_datetime, convert_date_string_to_datetime, return_clean_stdout_text, get_script_folder
 import sys
-
 from pprint import pprint
 from teamsParser import Teams
 
-def p(x):
-    print (x)
 
 class Window(QtWidgets.QMainWindow):
     def __init__(self):
         super(Window, self).__init__()
-        self.MatchPlan = Teams("teams.json")
+        script_path = get_script_folder()
+        self.path_to_settings_json = os.path.join(script_path, "tools", "teams.json")
+        self.path_to_ligaman_pro = os.path.join(script_path, "tools", "ligaman_pro.exe")
+        print(f"Path to settings JSON file: {self.path_to_settings_json}")
+        print(f"Path to Ligaman Pro: {self.path_to_ligaman_pro}")
+        self.MatchPlan = Teams()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.display_date_format = '%d.%m.%Y'
@@ -48,34 +48,52 @@ class Window(QtWidgets.QMainWindow):
         self.ui.pushButton_remove_unwanted_match_date.clicked.connect(self.remove_unwanted_match_date)
 
         # Connection to create match plan
+        self.ui.pushButton_download_matchplan.setEnabled(False)
         self.ui.pushButton_generate_matchplan.clicked.connect(self.generate_match_plan)
+        self.ui.pushButton_download_matchplan.clicked.connect(self.save_match_plan)
 
-        print('Connecting process')
+        # Connection to ligaman_pro process
         self.process = QtCore.QProcess(self)
-        self.process.readyRead.connect(self.stdoutReady)  # alternative to use print('',flush=True) instead of stdout
+        self.process.readyRead.connect(self.stdout_ready)  # alternative to use print('',flush=True) instead of stdout
+        self.process.started.connect(self.ligaman_process_started)
+        self.process.finished.connect(self.ligaman_process_finished)
 
-        # self.process.readyReadStandardOutput.connect(self.stdoutReady)
-        # self.process.readyReadStandardError.connect(self.stderrReady)
-        self.process.started.connect(lambda: p('Started!'))
-        self.process.finished.connect(lambda: p('Finished!'))
+        self.ui.progressBar_matchplan_generation.hide()
 
         self.show_teams()
 
-    def append(self, text):
+    def append_ligaman_pro_text(self, text):
         cursor = self.ui.textEdit_ligaman_pro_output.textCursor()
         cursor.movePosition(cursor.End)
         cursor.insertText(text)
         # self.output.ensureCursorVisible()
 
-    def stdoutReady(self):
-        text = str(self.process.readAllStandardOutput())
-        #print(text.strip())
-        self.append('\n' + text)
+    def ligaman_process_started(self):
+        self.ui.progressBar_matchplan_generation.show()
+        self.ui.progressBar_matchplan_generation.setValue(0)
+        self.ui.pushButton_generate_matchplan.setEnabled(False)
+        self.append_ligaman_pro_text('Starte Spielplan Generierung' + '\n')
 
-    def stderrReady(self):
-        text = str(self.process.readAllStandardError())
-        # print (text.strip())
-        self.append(text)
+    def ligaman_process_finished(self):
+        self.ui.pushButton_generate_matchplan.setEnabled(True)
+        self.append_ligaman_pro_text('Spielplan Generierung beendet' + '\n')
+        self.ui.progressBar_matchplan_generation.setValue(100)
+        if self.MatchPlan.check_for_settings_file(self.path_to_settings_json):
+            self.ui.pushButton_download_matchplan.setEnabled(True)
+        else:
+            self.ui.pushButton_download_matchplan.setEnabled(False)
+
+    def stdout_ready(self):
+        text = str(self.process.readAllStandardOutput())
+        text_clean = return_clean_stdout_text(text)
+        for entry in text_clean:
+            if "RUN" in entry:
+                try:
+                    self.ui.progressBar_matchplan_generation.setValue(int(entry[4:]))  # Remove "RUN:"
+                except Exception:
+                    pass
+            else:
+                self.append_ligaman_pro_text(entry + '\n')
 
     def update_selected_team(self):
         current_index = self.ui.listWidget_teams.currentRow()
@@ -170,14 +188,25 @@ class Window(QtWidgets.QMainWindow):
             self.MatchPlan.remove_unwanted_match_date(self.current_selection_team, date_object)
             self.show_unwanted_match_dates()
 
+    # TAB 3 - Generate Matchplan
     def generate_match_plan(self):
-        self.MatchPlan.save_settings_file("tools/teams.json")
+        self.ui.textEdit_ligaman_pro_output.clear()
+        self.ui.pushButton_download_matchplan.setEnabled(False)
+        self.MatchPlan.remove_settings_file(self.path_to_settings_json)
+        self.MatchPlan.save_settings_file(self.path_to_settings_json)
         print('Starting process')
-        filename = os.path.join("tools", "ligaman_pro.exe")
-        self.process.start(filename)
+        self.process.start(self.path_to_ligaman_pro)
+
+    def save_match_plan(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "",
+                                                  "All Files (*);;Text Files (*.txt)", options=options)
+        if fileName:
+            print(fileName)
 
 
-def app():
+def run_app():
     app = QtWidgets.QApplication(sys.argv)
     win = Window()
     win.show()
@@ -192,5 +221,5 @@ if __name__ == '__main__':
     #MatchPlan = Teams("teams.json")
     #MatchPlan.add_team("Honkverein")
 
-    app()
+    run_app()
 

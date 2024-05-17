@@ -1,3 +1,5 @@
+import os
+import sys
 from datetime import datetime
 
 
@@ -76,3 +78,25 @@ def convert_qt_date_to_datetime(qt_date):
     """
     year, month, day = qt_date
     return datetime(year, month, day)
+
+
+def return_clean_stdout_text(text):
+    text = text.replace("b'", "")
+    text = text.replace("'", "")
+    text = text.replace("\\x1b[0m", "")
+    text_clean = text.split("\\r\\n")
+    text_clean = list(filter(None, text_clean))
+    return text_clean
+
+
+def get_script_folder():
+    # determine if application is a script file or frozen exe
+    application_path = ""
+    if getattr(sys, 'frozen', False):
+        print("Program is an executable")
+        # application_path = os.path.dirname(sys.executable)
+        application_path = os.path.dirname(__file__)
+    elif __file__:
+        print("Program is native Python")
+        application_path = os.path.dirname(__file__)
+    return application_path

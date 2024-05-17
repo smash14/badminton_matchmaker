@@ -1,9 +1,25 @@
 import unittest
 from teamsParser import Teams
 from datetime import datetime
+from utils import return_clean_stdout_text
 
 
-class TestStringMethods(unittest.TestCase):
+class TestUtilsMethods(unittest.TestCase):
+
+    def test_clean_stdout_return(self):
+        sample_1 = "Standard Text\\r\\nMit Unterbrechung\\r\\n"
+        return_1_obs = return_clean_stdout_text(sample_1)
+        return_1_exp = ['Standard Text', 'Mit Unterbrechung']
+        self.assertEqual(return_1_obs, return_1_exp, "Lists are not the same")
+
+        sample_2 = "Standard Text\\r\\nRUN:50\\r\\n"
+        return_2_obs = return_clean_stdout_text(sample_2)
+        return_2_exp = ['Standard Text', 'RUN:50']
+        self.assertEqual(return_2_obs, return_2_exp, "Lists are not the same")
+
+
+
+class TestMatchPlanMethods(unittest.TestCase):
 
     def test_plan_types_variables(self):
         self.MatchPlanEmpty = Teams()
