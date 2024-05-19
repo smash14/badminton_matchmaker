@@ -1,8 +1,8 @@
 {
   "max_iterations": 10000,
   "return_on_first_match_plan": true,
-  "start_date_first_round": "",
-  "end_date_first_round": "",
+  "start_date_first_round": "2028-09-01",
+  "end_date_first_round": "2023-12-31",
   "start_date_second_round": "2024-01-01",
   "general_blocked_dates": [],
   "consecutive_matches": {
