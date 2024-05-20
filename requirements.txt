@@ -1,6 +1,4 @@
-pandas
-pyinstaller
-art
-tqdm
+pandas==2.2.2
+pyinstaller==6.6.0
 PyQt5
 pyqt5-tools

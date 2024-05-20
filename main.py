@@ -2,13 +2,14 @@ import os.path
 
 from PyQt5 import QtWidgets, QtCore, uic
 from PyQt5.QtCore import QDate
-from PyQt5.QtWidgets import QInputDialog, QMessageBox, QFileDialog
+from PyQt5.QtWidgets import QInputDialog, QMessageBox, QFileDialog, QTableWidgetItem, QHeaderView
 from main_window import Ui_MainWindow
 from datetime import datetime
 from utils import convert_qt_date_to_datetime, convert_date_string_to_datetime, return_clean_stdout_text, get_script_folder
 import sys
+import shutil
 import logging
-from pprint import pprint
+import pandas as pd
 from teamsParser import Teams
 
 logger = logging.getLogger(__name__)
@@ -22,13 +23,20 @@ class Window(QtWidgets.QMainWindow):
         script_path = get_script_folder()
         self.path_to_settings_json = os.path.join(script_path, "tools", "teams.json")
         self.path_to_ligaman_pro = os.path.join(script_path, "tools", "ligaman_pro.exe")
+        self.path_to_matchplan_csv = os.path.join(script_path, "tools", "spielplan.csv")
         print(f"Path to settings JSON file: {self.path_to_settings_json}")
         print(f"Path to Ligaman Pro: {self.path_to_ligaman_pro}")
+        print(f"Path to Math Plan: {self.path_to_matchplan_csv}")
         self.MatchPlan = Teams()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.display_date_format = '%d.%m.%Y'
         self.current_selection_team = None
+
+        # TAB 00 - "Main Menu"
+        self.ui.action_save_settings_file_as.triggered.connect(self.save_settings_file_as)
+        self.ui.action_reset_settings_file.triggered.connect(self.reset_settings_file)
+        self.ui.action_open_settings_file.triggered.connect(self.open_settings_file)
 
         # TAB 01 - "Globale Einstellungen"
         self.ui.checkBox_start_date_first_round_activate.clicked.connect(self.set_start_date_first_round)
@@ -67,6 +75,7 @@ class Window(QtWidgets.QMainWindow):
         # TAB 04 - "Spielplan Erstellen"
         # Connection to create match plan
         self.ui.pushButton_download_matchplan.setEnabled(False)
+        self.ui.tableWidget_match_plan.setEnabled(False)
         self.ui.pushButton_generate_matchplan.clicked.connect(self.generate_match_plan)
         self.ui.pushButton_download_matchplan.clicked.connect(self.save_match_plan)
 
@@ -78,11 +87,50 @@ class Window(QtWidgets.QMainWindow):
 
         self.ui.progressBar_matchplan_generation.hide()
 
-        self.refresh_tab_global_settings()
         self.refresh_all_tabs()
+        #self.show_generated_matchplan()  # TODO
 
     def refresh_all_tabs(self):
         self.refresh_tab_teams()
+        self.refresh_tab_global_settings()
+
+    # TAB 00 - "Main Menu"
+    def save_settings_file_as(self):
+        file_path, _ = QFileDialog.getSaveFileName(self, "Spielplan Einstellungen Speichern", "", "(*.json)")
+        if file_path:
+            file_name = os.path.normpath(file_path)
+            if self.MatchPlan.save_settings_file(file_name):
+                QMessageBox.information(
+                    self, "Einstellungen gespeichert", "Die Einstellungen für den Spielplan wurden erfolgreich gespeichert",
+                    buttons=QMessageBox.Ok)
+            else:
+                QMessageBox.Critical(
+                    self, "Fehler", "Die Einstellungen konnten nicht gespeichert werden.",
+                    buttons=QMessageBox.Ok)
+
+    def open_settings_file(self):
+        file_path, _ = QFileDialog.getOpenFileName(self, "Spielplan Einstellungen öffnen", "", "(*.json)")
+        if file_path:
+            file_name = os.path.normpath(file_path)
+            self.MatchPlan = Teams()
+            if self.MatchPlan.open_and_parse_settings_file(file_name):
+                QMessageBox.information(
+                    self, "Spielplan geladen", "Die Einstellungen für den Spielplan wurden erfolgreich geladen",
+                    buttons=QMessageBox.Ok)
+            else:
+                QMessageBox.critical(
+                    self, "Fehler", "Die Einstellungen konnten nicht geladen werden.",
+                    buttons=QMessageBox.Ok)
+
+            self.refresh_all_tabs()
+
+    def reset_settings_file(self):
+        button = QMessageBox.warning(self, "Löschen bestätigen", "Alle Einstellungen für den Spielplan zurücksetzen?",
+                                     buttons=QMessageBox.Ok | QMessageBox.Discard)
+        if button == QMessageBox.Ok:
+            self.ui.statusbar.showMessage("Alle Einstellungen zurückgesetzt", 5000)
+            self.MatchPlan = Teams()
+            self.refresh_all_tabs()
 
     # TAB 01 - "Globale Einstellungen"
     def refresh_tab_global_settings(self):
@@ -282,12 +330,26 @@ class Window(QtWidgets.QMainWindow):
 
     # TAB 04 - "Spielplan Erstellen"
     def generate_match_plan(self):
+        if os.path.exists(self.path_to_matchplan_csv):
+            logging.info(f"Match plan already exists: {self.path_to_matchplan_csv}")
+            button = QMessageBox.question(self, "Löschen bestätigen", "Bisherigen Spielplan löschen und Neuen generieren?",
+                                     buttons=QMessageBox.Yes | QMessageBox.No)
+            if button == QMessageBox.Yes:
+                try:
+                    os.remove(self.path_to_matchplan_csv)
+                    logging.info(f"Deleting old match plan: {self.path_to_matchplan_csv}")
+                except OSError as e:
+                    logging.error("Error deleting old match plan file: %s - %s." % (e.filename, e.strerror))
+            else:
+                return
         self.ui.textEdit_ligaman_pro_output.clear()
         self.ui.pushButton_download_matchplan.setEnabled(False)
-        self.MatchPlan.remove_settings_file(self.path_to_settings_json)
+        self.ui.tableWidget_match_plan.setRowCount(0)
+        self.MatchPlan.remove_settings_file(self.path_to_settings_json)  # remove old file
         self.MatchPlan.save_settings_file(self.path_to_settings_json)
-        print('Starting process')
+        logging.info('Starting process: generate matchplan')
         self.process.start(self.path_to_ligaman_pro)
+
 
     def append_ligaman_pro_text(self, text):
         cursor = self.ui.textEdit_ligaman_pro_output.textCursor()
@@ -305,15 +367,22 @@ class Window(QtWidgets.QMainWindow):
         self.ui.pushButton_generate_matchplan.setEnabled(True)
         self.append_ligaman_pro_text('Spielplan Generierung beendet' + '\n')
         self.ui.progressBar_matchplan_generation.setValue(100)
-        if self.MatchPlan.check_for_settings_file(self.path_to_settings_json):
+        logging.info("Process finished: generate matchplan")
+        if os.path.exists(self.path_to_matchplan_csv):
             self.ui.pushButton_download_matchplan.setEnabled(True)
+            self.ui.tableWidget_match_plan.setEnabled(True)
+            self.show_generated_matchplan()
+            logging.info(f"New match plan available: {self.path_to_matchplan_csv}")
         else:
             self.ui.pushButton_download_matchplan.setEnabled(False)
+            self.ui.tableWidget_match_plan.setEnabled(False)
+            logging.warning(f"No match plan seems to be created: {self.path_to_matchplan_csv}")
 
     def stdout_ready(self):
         text = str(self.process.readAllStandardOutput())
         text_clean = return_clean_stdout_text(text)
         for entry in text_clean:
+            logging.info(f"ligaman_pro stdout: {entry}")
             if "RUN" in entry:
                 try:
                     self.ui.progressBar_matchplan_generation.setValue(int(entry[4:]))  # Remove "RUN:"
@@ -323,20 +392,36 @@ class Window(QtWidgets.QMainWindow):
                 self.append_ligaman_pro_text(entry + '\n')
 
     def save_match_plan(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "",
-                                                  "All Files (*);;Text Files (*.txt)", options=options)
-        if fileName:
-            print(fileName)
+        file_path, _ = QFileDialog.getSaveFileName(self, "Spielplan speichern", "", "(*.csv)")
+        if file_path and self.path_to_matchplan_csv:
+            file_name = os.path.normpath(file_path)
+            try:
+                shutil.copyfile(self.path_to_matchplan_csv, file_name)
+                logging.info(f"Spielplan gespeichert unter: {file_name}")
+                QMessageBox.information(
+                    self, "Einstellungen gespeichert", "Der Spielplan wurden erfolgreich gespeichert",
+                    buttons=QMessageBox.Ok)
+            except IOError as e:
+                logging.error(f"Fehler beim speichern des Spielplans: {e}")
+                QMessageBox.Critical(
+                    self, "Fehler", "Der Spielplan konnten nicht gespeichert werden.",
+                    buttons=QMessageBox.Ok)
 
-    def open_match_plan(self):
-        options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "",
-                                                  "All Files (*);;Text Files (*.txt)", options=options)
-        if fileName:
-            print(fileName)
+    def show_generated_matchplan(self):
+        df = pd.read_csv(self.path_to_matchplan_csv, sep=";")
+        count_row = df.shape[0]
+        list_of_column_names = list(df.columns)
+        relevant_columns = [list_of_column_names[1], list_of_column_names[2], list_of_column_names[6]]
+        self.ui.tableWidget_match_plan.setRowCount(count_row)
+        self.ui.tableWidget_match_plan.setColumnCount(3)
+        self.ui.tableWidget_match_plan.setHorizontalHeaderLabels(relevant_columns)
+        for index, row in df.iterrows():
+            self.ui.tableWidget_match_plan.setItem(index, 0, QTableWidgetItem(row["Datum"]))
+            self.ui.tableWidget_match_plan.setItem(index, 1, QTableWidgetItem(row["Heimmannschaft"]))
+            self.ui.tableWidget_match_plan.setItem(index, 2, QTableWidgetItem(row["Gastmannschaft"]))
+            # Table will fit the screen horizontally
+        self.ui.tableWidget_match_plan.horizontalHeader().setStretchLastSection(True)
+        self.ui.tableWidget_match_plan.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
 
 def run_app():

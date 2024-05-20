@@ -34,7 +34,7 @@ class Teams:
             with open(path_to_file) as file:
                 file_contents = file.read()
         except FileNotFoundError:
-            print(f"Fehler, konnte Datei {path_to_file} nicht finden")
+            logging.error(f"Fehler, konnte Datei {path_to_file} nicht finden")
             return False
 
         try:
@@ -64,43 +64,49 @@ class Teams:
                 self.max_iterations = sys.maxsize
             self._sort_all_datetime_lists()
         except Exception as e:
-            print("Fehler beim Verarbeiten der teams.json Datei mit folgender Fehlermeldung:")
-            print("")
-            print(e)
+            logging.error(f"Fehler beim Verarbeiten der teams.json Datei mit folgender Fehlermeldung: {e}")
             return False
+        return True
 
     def save_settings_file(self, path_to_file):
-        export_plan = {}
-        export_plan['max_iterations'] = self.max_iterations
-        export_plan['return_on_first_match_plan'] = self.return_on_first_match_plan
-        export_plan['start_date_first_round'] = convert_datetime_to_string(self.start_date_first_round)
-        export_plan['end_date_first_round'] = convert_datetime_to_string(self.end_date_first_round)
-        export_plan['start_date_second_round'] = convert_datetime_to_string(self.start_date_second_round)
-        export_plan['general_blocked_dates'] = convert_datetime_list_to_string(self.general_blocked_dates)
-        export_plan['consecutive_matches'] = self.consecutive_matches
-        export_plan['shuffle_matches'] = self.shuffle_matches
-        export_plan['weight'] = self.weight
-        export_plan['teams'] = {}
-        for team in self.teams:
-            export_plan['teams'][team] = {}
-            export_plan['teams'][team]['available_dates_home_matches'] = \
-                convert_datetime_list_to_string(self.teams[team]['available_dates_home_matches'])
-            export_plan['teams'][team]['blocked_dates_matches'] = \
-                convert_datetime_list_to_string(self.teams[team]['blocked_dates_matches'])
-            export_plan['teams'][team]['please_dont_play_dates'] = \
-                convert_datetime_list_to_string(self.teams[team]['please_dont_play_dates'])
-        json_object = json.dumps(export_plan, indent=2)
-        with open(path_to_file, "w") as outfile:
-            outfile.write(json_object)
-            print(f"Settings File written to {path_to_file}")
+        try:
+            export_plan = {}
+            export_plan['max_iterations'] = self.max_iterations
+            export_plan['return_on_first_match_plan'] = self.return_on_first_match_plan
+            export_plan['start_date_first_round'] = convert_datetime_to_string(self.start_date_first_round)
+            export_plan['end_date_first_round'] = convert_datetime_to_string(self.end_date_first_round)
+            export_plan['start_date_second_round'] = convert_datetime_to_string(self.start_date_second_round)
+            export_plan['general_blocked_dates'] = convert_datetime_list_to_string(self.general_blocked_dates)
+            export_plan['consecutive_matches'] = self.consecutive_matches
+            export_plan['shuffle_matches'] = self.shuffle_matches
+            export_plan['weight'] = self.weight
+            export_plan['teams'] = {}
+            for team in self.teams:
+                export_plan['teams'][team] = {}
+                export_plan['teams'][team]['available_dates_home_matches'] = \
+                    convert_datetime_list_to_string(self.teams[team]['available_dates_home_matches'])
+                export_plan['teams'][team]['blocked_dates_matches'] = \
+                    convert_datetime_list_to_string(self.teams[team]['blocked_dates_matches'])
+                export_plan['teams'][team]['please_dont_play_dates'] = \
+                    convert_datetime_list_to_string(self.teams[team]['please_dont_play_dates'])
+            json_object = json.dumps(export_plan, indent=2)
+            with open(path_to_file, "w") as outfile:
+                outfile.write(json_object)
+                logging.info(f"Settings File written to {path_to_file}")
+                return True
+        except Exception as e:
+            logging.error(f"Error while saving settings file: {e}")
+            return False
 
     @staticmethod
     def remove_settings_file(path_to_file):
         try:
             os.remove(path_to_file)
-            print(f"File '{path_to_file}' deleted successfully.")
+            logging.info(f"File '{path_to_file}' deleted successfully before creating a new one.")
         except FileNotFoundError:
-            print(f"File '{path_to_file}' not found.")
+            logging.warning(f"File '{path_to_file}' not found.")
+        except OSError as e:
+            logging.error("Error deleting old file: %s - %s." % (e.filename, e.strerror))
 
     @staticmethod
     def check_for_settings_file(path_to_file):
