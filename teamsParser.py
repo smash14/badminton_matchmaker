@@ -11,19 +11,19 @@ logger = logging.getLogger(__name__)
 
 class Teams:
     def __init__(self, path_to_teams_file=None):
-        self.max_iterations = 99
+        self.max_iterations = 10000
         self.return_on_first_match_plan = False
         self.start_date_first_round = None
         self.end_date_first_round = None
         self.start_date_second_round = None
         self.general_blocked_dates = []
         self.consecutive_matches = {'allow': 1, 'probability': 50}
-        self.shuffle_matches = {'allow': 1, 'shuffle_part': 0.4}
+        self.shuffle_matches = {'allow': 1, 'shuffle_part': 0.5}
         self.weight = {
             'amount_consecutive_matches': 1,
-            'distribution_game_days': 100,
-            'amount_please_dont_play_dates': 10,
-            'distribution_home_away_matches': 1
+            'distribution_game_days': 2,
+            'amount_please_dont_play_dates': 1,
+            'distribution_home_away_matches': 2
         }
         self.teams = {}
         if path_to_teams_file is not None:

@@ -27,7 +27,7 @@ class Window(QtWidgets.QMainWindow):
         print(f"Path to settings JSON file: {self.path_to_settings_json}")
         print(f"Path to Ligaman Pro: {self.path_to_ligaman_pro}")
         print(f"Path to Math Plan: {self.path_to_matchplan_csv}")
-        self.MatchPlan = Teams()
+        self.MatchPlan = Teams("teams.json")
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.display_date_format = '%d.%m.%Y'
@@ -93,6 +93,7 @@ class Window(QtWidgets.QMainWindow):
     def refresh_all_tabs(self):
         self.refresh_tab_teams()
         self.refresh_tab_global_settings()
+        self.refresh_tab_expert_settings()
 
     # TAB 00 - "Main Menu"
     def save_settings_file_as(self):
@@ -222,7 +223,6 @@ class Window(QtWidgets.QMainWindow):
             self.MatchPlan.remove_general_blocked_date(date_object)
             self.show_general_blocked_dates()
 
-
     def show_expert_settings(self):
         if self.ui.checkBox_expert_settings.isChecked():
             self.ui.tabWidget.setTabVisible(EXPERT_SETTINGS_TAB, True)
@@ -328,6 +328,27 @@ class Window(QtWidgets.QMainWindow):
             self.MatchPlan.remove_unwanted_match_date(self.current_selection_team, date_object)
             self.show_unwanted_match_dates()
 
+    # TAB 03 - "Erweiterte Einstellungen"
+    def refresh_tab_expert_settings(self):
+        self.ui.spinBox_max_iterations.setValue(self.MatchPlan.max_iterations)
+        self.ui.checkBox_return_on_first_match_plan.setChecked(self.MatchPlan.return_on_first_match_plan)
+        if self.MatchPlan.consecutive_matches['allow'] == 1:
+            self.ui.checkBox_consecutive_matches_allow.setChecked(True)
+        else:
+            self.ui.checkBox_consecutive_matches_allow.setChecked(False)
+        self.ui.spinBox_consecutive_matches_probability.setValue(self.MatchPlan.consecutive_matches['probability'])
+        if self.MatchPlan.shuffle_matches['allow'] == 1:
+            self.ui.checkBox_shuffle_matches_allow.setChecked(True)
+        else:
+            self.ui.checkBox_shuffle_matches_allow.setChecked(False)
+        self.ui.doubleSpinBox_shuffle_matches_shuffle_part.setValue(self.MatchPlan.shuffle_matches['shuffle_part'])
+        self.ui.spinBox_weight_amount_consecutive_matches.setValue(self.MatchPlan.weight['amount_consecutive_matches'])
+        self.ui.spinBox_weight_distribution_game_days.setValue(self.MatchPlan.weight['distribution_game_days'])
+        self.ui.spinBox_weight_amount_please_dont_play_dates.setValue(
+            self.MatchPlan.weight['amount_please_dont_play_dates'])
+        self.ui.spinBox_weight_distribution_home_away_matches.setValue(
+            self.MatchPlan.weight['distribution_home_away_matches'])
+
     # TAB 04 - "Spielplan Erstellen"
     def generate_match_plan(self):
         if os.path.exists(self.path_to_matchplan_csv):
@@ -349,7 +370,6 @@ class Window(QtWidgets.QMainWindow):
         self.MatchPlan.save_settings_file(self.path_to_settings_json)
         logging.info('Starting process: generate matchplan')
         self.process.start(self.path_to_ligaman_pro)
-
 
     def append_ligaman_pro_text(self, text):
         cursor = self.ui.textEdit_ligaman_pro_output.textCursor()
