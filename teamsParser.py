@@ -28,6 +28,7 @@ class Teams:
         self.teams = {}
         if path_to_teams_file is not None:
             self.open_and_parse_settings_file(path_to_teams_file)
+        logging.info(f"class init finished ")
 
     def open_and_parse_settings_file(self, path_to_file):
         try:
@@ -112,23 +113,128 @@ class Teams:
     def check_for_settings_file(path_to_file):
         return os.path.exists(path_to_file)
 
+    def set_max_iterations(self, max_iterations):
+        if type(max_iterations) is not int:
+            logging.error(f"set_max_iterations: Expected type int, got {type(max_iterations)}: {max_iterations}")
+            return False
+        if max_iterations > sys.maxsize:
+            max_iterations = sys.maxsize
+        self.max_iterations = max_iterations
+        logging.info(f"set max_iterations to {max_iterations}")
+        return True
+
+    def set_return_on_first_match_plan(self, return_on_first_match_plan):
+        if type(return_on_first_match_plan) is not bool:
+            logging.error(f"set_return_on_first_match_plan: Expected type bool,"
+                          f" got {type(return_on_first_match_plan)}: {return_on_first_match_plan}")
+            return False
+        self.return_on_first_match_plan = return_on_first_match_plan
+        logging.info(f"set return_on_first_match_plan to {return_on_first_match_plan}")
+        return True
+
+    def set_settings_consecutive_matches(self, allow_bool, probability):
+        if type(allow_bool) is not bool:
+            logging.error(f"set_consecutive_match: Expected type bool, got {type(allow_bool)}: {allow_bool}")
+            return False
+        if type(probability) is not int:
+            logging.error(f"set_consecutive_match: Expected type int, got {type(probability)}: {probability}")
+            return False
+        if allow_bool:
+            allow = 1
+        else:
+            allow = 0
+        self.consecutive_matches = {
+            'allow': allow,
+            'probability': probability
+        }
+        logging.info(f"set consecutive_matches to {allow}, {probability}")
+        return True
+
+    def set_settings_shuffle_matches(self, allow_bool, shuffle_part):
+        if type(allow_bool) is not bool:
+            logging.error(f"set_settings_shuffle_matches: Expected type bool, got {type(allow_bool)}: {allow_bool}")
+            return False
+        if type(shuffle_part) is not float:
+            logging.error(f"set_settings_shuffle_matches: Expected type float, got {type(shuffle_part)}: {shuffle_part}")
+            return False
+        if allow_bool:
+            allow = 1
+        else:
+            allow = 0
+        if shuffle_part > 1.0:
+            shuffle_part = 1.0
+        if shuffle_part < 0.1:
+            shuffle_part = 0.1
+        self.shuffle_matches = {
+            'allow': allow,
+            'shuffle_part': shuffle_part
+        }
+        logging.info(f"set shuffle_matches to {allow}, {shuffle_part}")
+        return True
+
+    def set_settings_weight(self, amount_consecutive_matches, distribution_game_days, amount_please_dont_play_dates,
+                            distribution_home_away_matches):
+        if type(amount_consecutive_matches) is not int:
+            logging.error(f"set_settings_weight: Expected type int,"
+                          f" got {type(amount_consecutive_matches)}: {amount_consecutive_matches}")
+            return False
+        if type(distribution_game_days) is not int:
+            logging.error(f"set_settings_weight: Expected type int,"
+                          f" got {type(distribution_game_days)}: {distribution_game_days}")
+            return False
+        if type(amount_please_dont_play_dates) is not int:
+            logging.error(f"set_settings_weight: Expected type int,"
+                          f" got {type(amount_please_dont_play_dates)}: {amount_please_dont_play_dates}")
+            return False
+        if type(distribution_home_away_matches) is not int:
+            logging.error(f"set_settings_weight: Expected type int,"
+                          f" got {type(distribution_home_away_matches)}: {distribution_home_away_matches}")
+            return False
+
+        self.weight = {
+            'amount_consecutive_matches': amount_consecutive_matches,
+            'distribution_game_days': distribution_game_days,
+            'amount_please_dont_play_dates': amount_please_dont_play_dates,
+            'distribution_home_away_matches': distribution_home_away_matches
+        }
+        logging.info(f"set weight to amount_consecutive_matches: {amount_consecutive_matches},"
+                     f"distribution_game_days: {distribution_game_days}, "
+                     f"amount_please_dont_play_dates: {amount_please_dont_play_dates},"
+                     f"distribution_home_away_matches: {distribution_home_away_matches}")
+        return True
+
     def set_start_date_first_round(self, date):
         if date is None or date == "":
             self.start_date_first_round = None
-        else:
-            self.start_date_first_round = date
+            return True
+        if not type(date) is datetime.datetime:
+            logging.error(f"set_start_date_first_round: Expected datetime, got: {type(date)}, {date}")
+            return False
+        self.start_date_first_round = date
+        logging.info(f"set start_date_first_round to {date}")
+        return True
 
     def set_start_date_second_round(self, date):
         if date is None or date == "":
             self.start_date_second_round = None
-        else:
-            self.start_date_second_round = date
+            return True
+        if not type(date) is datetime.datetime:
+            logging.error(f"set_start_date_second_round: Expected datetime, got: {type(date)}, {date}")
+            return False
+        self.start_date_second_round = date
+        logging.info(f"set start_date_second_round to {date}")
+        return True
 
     def set_end_date_first_round(self, date):
         if date is None or date == "":
             self.end_date_first_round = None
-        else:
-            self.end_date_first_round = date
+            return True
+        if not type(date) is datetime.datetime:
+            logging.error(f"set_end_date_first_round: Expected datetime, got: {type(date)}, {date}")
+            return False
+        self.end_date_first_round = date
+        logging.info(f"set end_date_first_round to {date}")
+        return True
 
     def add_general_blocked_date(self, date):
         if not type(date) is datetime.datetime:
@@ -136,6 +242,7 @@ class Teams:
             return
         if date not in self.general_blocked_dates:
             self.general_blocked_dates.append(date)
+            logging.info(f"add general blocked date: {date}")
             self._sort_all_datetime_lists()
 
     def remove_general_blocked_date(self, date):
@@ -143,7 +250,9 @@ class Teams:
             logging.error(f"remove general blocked date: incorrect date type. Expected datetime, got: {type(date)}")
         try:
             self.general_blocked_dates.remove(date)
+            logging.info(f"remove general blocked date: {date}")
         except ValueError:
+            logging.warning(f"could not find {date} in general blocked date")
             pass
 
     def add_team(self, team_name):
@@ -152,9 +261,16 @@ class Teams:
             "blocked_dates_matches": [],
             "please_dont_play_dates": []
         }
+        logging.info(f"add new team: {team_name}")
 
     def remove_team(self, team_name):
-        self.teams.pop(team_name)
+        try:
+            self.teams.pop(team_name)
+            logging.info(f"remove team {team_name}")
+            return True
+        except KeyError:
+            logging.error(f"Could not remove team {team_name}, not in list")
+            return False
 
     def get_all_teams(self):
         list_of_all_teams = []
@@ -164,26 +280,36 @@ class Teams:
 
     def add_home_match_date(self, team_name, date):
         if team_name is None:
-            return
+            logging.warning("add_home_match_date: team_name is None")
+            return False
+        if type(team_name) is not str:
+            logging.error(f"add_home_match_date: Expected string, got: {type(team_name)}, {team_name}")
+            return False
         if not type(date) is datetime.datetime:
-            logging.error(f"add home match date: incorrect date type. Expected datetime, got: {type(date)}")
-            return
+            logging.error(f"add_home_match_date: Expected datetime, got: {type(date)}, {date}")
+            return False
         try:
             if date not in self.teams[team_name]["available_dates_home_matches"]:
                 self.teams[team_name]["available_dates_home_matches"].append(date)
                 self._sort_all_datetime_lists()
+                logging.info(f"add home match date for {team_name}: {date}")
+                return True
         except KeyError:
-            logging.error(f"add home match date: {team_name} is not available")
-            return
+            logging.error(f"add_home_match_date: {team_name} is not available")
+            return False
 
     def remove_home_match_date(self, team_name, date):
         if not type(date) is datetime.datetime:
-            raise TypeError(f"remove home match date: Incorrect date type. Expected datetime, got: {type(date)}")
+            logging.error(f"remove_home_match_date: Expected datetime, got: {type(date)}, {date}")
+            return False
         try:
             self.teams[team_name]["available_dates_home_matches"].remove(date)
         except KeyError:
-            raise KeyError(f"{team_name} or {date} is not available")
+            logging.error(f"remove_home_match_date: {team_name} or {date} is not available")
+            return False
+        logging.info(f"remove home match date for {team_name}: {date}")
         self._sort_all_datetime_lists()
+        return True
 
     def get_all_home_match_dates(self, team_name, show_as_string=True, date_format='%Y-%m-%d'):
         home_match_dates = []
@@ -210,26 +336,36 @@ class Teams:
 
     def add_blocked_match_date(self, team_name, date):
         if team_name is None:
-            return
+            logging.error("add_blocked_match_date: team_name is None")
+            return False
+        if type(team_name) is not str:
+            logging.error(f"add_blocked_match_date: Expected string, got: {type(team_name)}, {team_name}")
+            return False
         if not type(date) is datetime.datetime:
-            logging.error(f"add blocked date: Incorrect date type. Expected datetime, got: {type(date)}")
-            return
+            logging.error(f"add_blocked_date: Expected datetime, got: {type(date)}, {date}")
+            return False
         try:
             if date not in self.teams[team_name]["blocked_dates_matches"]:
                 self.teams[team_name]["blocked_dates_matches"].append(date)
                 self._sort_all_datetime_lists()
+                logging.info(f"add blocked match date for {team_name}: {date}")
+                return True
         except KeyError:
             logging.error(f"add blocked date: {team_name} is not available")
-            return
+            return False
 
     def remove_blocked_match_date(self, team_name, date):
         if not type(date) is datetime.datetime:
-            raise TypeError(f"incorrect date type. Expected datetime, got: {type(date)}")
+            logging.error(f"remove_blocked_match. Expected datetime, got: {type(date)}, {date}")
+            return False
         try:
             self.teams[team_name]["blocked_dates_matches"].remove(date)
         except KeyError:
-            raise KeyError(f"{team_name} or {date} is not available")
+            logging.error(f"remove_blocked_date {team_name} or {date} is not available")
+            return False
         self._sort_all_datetime_lists()
+        logging.info(f"remove blocked match date for {team_name}: {date}")
+        return True
 
     def show_all_blocked_match_dates(self, team_name, show_as_string=True, date_format='%Y-%m-%d'):
         blocked_match_dates = []
@@ -245,26 +381,35 @@ class Teams:
 
     def add_unwanted_match_date(self, team_name, date):
         if team_name is None:
-            return
+            logging.warning("add_unwanted_match_date: team_name is None")
+            return False
+        if type(team_name) is not str:
+            logging.error(f"add_unwanted_match_date: Expected string, got: {type(team_name)}, {team_name}")
+            return False
         if not type(date) is datetime.datetime:
-            logging.error(f"add unwanted match date: incorrect date type. Expected datetime, got: {type(date)}")
-            return
+            logging.error(f"add_unwanted_match_date: Expected datetime, got: {type(date)}, {date}")
+            return False
         try:
             if date not in self.teams[team_name]["please_dont_play_dates"]:
                 self.teams[team_name]["please_dont_play_dates"].append(date)
                 self._sort_all_datetime_lists()
+                logging.info(f"add unwanted match date for {team_name}: {date}")
+                return True
         except KeyError:
-            logging.error(f"{team_name} is not available")
-            return
+            logging.error(f"add_unwanted_match_date: {team_name} is not available")
+            return False
 
     def remove_unwanted_match_date(self, team_name, date):
         if not type(date) is datetime.datetime:
-            raise TypeError(f"incorrect date type. Expected datetime, got: {type(date)}")
+            logging.error(f"remove_unwanted_match_date: Expected datetime, got: {type(date)}, {date}")
         try:
             self.teams[team_name]["please_dont_play_dates"].remove(date)
         except KeyError:
-            raise KeyError(f"{team_name} or {date} is not available")
+            logging.error(f"remove_unwanted_match_date: {team_name} or {date} is not available")
+            return False
         self._sort_all_datetime_lists()
+        logging.info(f"remove unwanted match date for {team_name}: {date}")
+        return True
 
     def show_all_unwanted_match_dates(self, team_name, show_as_string=True, date_format='%Y-%m-%d'):
         unwanted_match_dates = []

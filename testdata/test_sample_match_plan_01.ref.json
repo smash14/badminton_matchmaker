@@ -1,6 +1,6 @@
 {
-  "max_iterations": 99,
-  "return_on_first_match_plan": false,
+  "max_iterations": 12345,
+  "return_on_first_match_plan": true,
   "start_date_first_round": "2000-01-17",
   "end_date_first_round": "2001-08-30",
   "start_date_second_round": "2001-01-01",
@@ -8,18 +8,18 @@
     "2019-01-17"
   ],
   "consecutive_matches": {
-    "allow": 1,
-    "probability": 50
+    "allow": 0,
+    "probability": 22
   },
   "shuffle_matches": {
-    "allow": 1,
-    "shuffle_part": 0.4
+    "allow": 0,
+    "shuffle_part": 0.33
   },
   "weight": {
-    "amount_consecutive_matches": 1,
-    "distribution_game_days": 100,
-    "amount_please_dont_play_dates": 10,
-    "distribution_home_away_matches": 1
+    "amount_consecutive_matches": 6,
+    "distribution_game_days": 7,
+    "amount_please_dont_play_dates": 8,
+    "distribution_home_away_matches": 9
   },
   "teams": {
     "DreamTeam": {

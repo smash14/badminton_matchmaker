@@ -42,8 +42,8 @@ class TestMatchPlanMethods(unittest.TestCase):
     def test_add_date_wrong_format(self):
         self.MatchPlanEmpty = Teams()
         testdatetime = datetime.now()
-        self.assertRaises(TypeError, self.MatchPlanEmpty.add_home_match_date, "TeamNotExist", "2024-04-04")
-        self.assertRaises(KeyError, self.MatchPlanEmpty.add_home_match_date, "TeamNotExist", testdatetime)
+        self.assertFalse(self.MatchPlanEmpty.add_home_match_date("TeamNotExist", "2024-04-04"))
+        self.assertFalse(self.MatchPlanEmpty.add_home_match_date( "TeamNotExist", testdatetime))
 
     def test_sample_match_plan_01(self):
         date_home_match_team = datetime(2021, 2, 19)
@@ -54,15 +54,20 @@ class TestMatchPlanMethods(unittest.TestCase):
         date_end_date_first_round = datetime(2001, 8, 30)
         date_start_date_second_round = datetime(2001, 1, 1)
         self.MatchPlanEmpty = Teams()
-        self.assertRaises(KeyError, self.MatchPlanEmpty.remove_team, "TeamNotExist")
+        self.MatchPlanEmpty.set_max_iterations(12345)
+        self.MatchPlanEmpty.set_return_on_first_match_plan(True)
+        self.MatchPlanEmpty.set_start_date_first_round(date_start_date_first_round)
+        self.MatchPlanEmpty.set_end_date_first_round(date_end_date_first_round)
+        self.MatchPlanEmpty.set_start_date_second_round(date_start_date_second_round)
+        self.MatchPlanEmpty.set_settings_consecutive_matches(False, 22)
+        self.MatchPlanEmpty.set_settings_shuffle_matches(False, 0.33)
+        self.MatchPlanEmpty.set_settings_weight(6, 7, 8, 9)
+        self.assertFalse(self.MatchPlanEmpty.remove_team("TeamNotExist"))
         self.MatchPlanEmpty.add_team("DreamTeam")
         self.MatchPlanEmpty.add_home_match_date("DreamTeam", date_home_match_team)
         self.MatchPlanEmpty.add_blocked_match_date("DreamTeam", date_blocked_match_team)
         self.MatchPlanEmpty.add_unwanted_match_date("DreamTeam", date_unwanted_match_team)
         self.MatchPlanEmpty.add_general_blocked_date(date_blocked_match_general)
-        self.MatchPlanEmpty.set_start_date_first_round(date_start_date_first_round)
-        self.MatchPlanEmpty.set_end_date_first_round(date_end_date_first_round)
-        self.MatchPlanEmpty.set_start_date_second_round(date_start_date_second_round)
         self.MatchPlanEmpty.save_settings_file("testdata/test_sample_match_plan_01.json")
 
         with open("testdata/test_sample_match_plan_01.json") as file:

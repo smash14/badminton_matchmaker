@@ -26,8 +26,8 @@ class Window(QtWidgets.QMainWindow):
         self.path_to_matchplan_csv = os.path.join(script_path, "tools", "spielplan.csv")
         print(f"Path to settings JSON file: {self.path_to_settings_json}")
         print(f"Path to Ligaman Pro: {self.path_to_ligaman_pro}")
-        print(f"Path to Math Plan: {self.path_to_matchplan_csv}")
-        self.MatchPlan = Teams("teams.json")
+        print(f"Path to Match Plan: {self.path_to_matchplan_csv}")
+        self.MatchPlan = Teams()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.display_date_format = '%d.%m.%Y'
@@ -71,6 +71,16 @@ class Window(QtWidgets.QMainWindow):
 
         # TAB 03 - "Erweiterte Einstellungen"
         self.ui.tabWidget.setTabVisible(EXPERT_SETTINGS_TAB, False)
+        self.ui.spinBox_max_iterations.valueChanged.connect(self.set_max_iterations)
+        self.ui.checkBox_return_on_first_match_plan.clicked.connect(self.set_return_on_first_match_plan)
+        self.ui.checkBox_consecutive_matches_allow.clicked.connect(self.set_consecutive_matches)
+        self.ui.spinBox_consecutive_matches_probability.valueChanged.connect(self.set_consecutive_matches)
+        self.ui.checkBox_shuffle_matches_allow.clicked.connect(self.set_shuffle_matches)
+        self.ui.doubleSpinBox_shuffle_matches_shuffle_part.valueChanged.connect(self.set_shuffle_matches)
+        self.ui.spinBox_weight_amount_consecutive_matches.valueChanged.connect(self.set_weight)
+        self.ui.spinBox_weight_distribution_home_away_matches.valueChanged.connect(self.set_weight)
+        self.ui.spinBox_weight_amount_please_dont_play_dates.valueChanged.connect(self.set_weight)
+        self.ui.spinBox_weight_distribution_game_days.valueChanged.connect(self.set_weight)
 
         # TAB 04 - "Spielplan Erstellen"
         # Connection to create match plan
@@ -182,7 +192,6 @@ class Window(QtWidgets.QMainWindow):
         else:
             self.ui.dateEdit_start_date_first_round.setEnabled(False)
             self.MatchPlan.set_start_date_first_round(None)
-        print(f"Start Date first round set to: {self.MatchPlan.start_date_first_round}")
 
     def set_end_date_first_round(self):
         if self.ui.checkBox_end_date_first_round_activate.isChecked():
@@ -192,7 +201,6 @@ class Window(QtWidgets.QMainWindow):
         else:
             self.ui.dateEdit_end_date_first_round.setEnabled(False)
             self.MatchPlan.set_end_date_first_round(None)
-        print(f"End Date first round set to: {self.MatchPlan.end_date_first_round}")
 
     def set_start_date_second_round(self):
         if self.ui.checkBox_start_date_second_round_activate.isChecked():
@@ -202,7 +210,6 @@ class Window(QtWidgets.QMainWindow):
         else:
             self.ui.dateEdit_start_date_second_round.setEnabled(False)
             self.MatchPlan.set_start_date_second_round(None)
-        print(f"Start Date second round set to: {self.MatchPlan.start_date_second_round}")
 
     def show_general_blocked_dates(self):
         self.ui.listWidget_general_blocked_dates.clear()
@@ -349,6 +356,30 @@ class Window(QtWidgets.QMainWindow):
         self.ui.spinBox_weight_distribution_home_away_matches.setValue(
             self.MatchPlan.weight['distribution_home_away_matches'])
 
+    def set_max_iterations(self):
+        self.MatchPlan.set_max_iterations(self.ui.spinBox_max_iterations.value())
+
+    def set_return_on_first_match_plan(self):
+        self.MatchPlan.set_return_on_first_match_plan(self.ui.checkBox_return_on_first_match_plan.isChecked())
+
+    def set_consecutive_matches(self):
+        consecutive_matches_allow = self.ui.checkBox_consecutive_matches_allow.isChecked()
+        consecutive_matches_probability = self.ui.spinBox_consecutive_matches_probability.value()
+        self.MatchPlan.set_settings_consecutive_matches(consecutive_matches_allow, consecutive_matches_probability)
+
+    def set_shuffle_matches(self):
+        shuffle_matches_allow = self.ui.checkBox_shuffle_matches_allow.isChecked()
+        shuffle_matches_part = self.ui.doubleSpinBox_shuffle_matches_shuffle_part.value()
+        self.MatchPlan.set_settings_shuffle_matches(shuffle_matches_allow, shuffle_matches_part)
+
+    def set_weight(self):
+        amount_consecutive_matches = self.ui.spinBox_weight_amount_consecutive_matches.value()
+        distribution_game_days = self.ui.spinBox_weight_distribution_game_days.value()
+        amount_please_dont_play_dates = self.ui.spinBox_weight_amount_please_dont_play_dates.value()
+        distribution_home_away_matches = self.ui.spinBox_weight_distribution_home_away_matches.value()
+        self.MatchPlan.set_settings_weight(amount_consecutive_matches, distribution_game_days,
+                                           amount_please_dont_play_dates, distribution_home_away_matches)
+
     # TAB 04 - "Spielplan Erstellen"
     def generate_match_plan(self):
         if os.path.exists(self.path_to_matchplan_csv):
@@ -417,13 +448,13 @@ class Window(QtWidgets.QMainWindow):
             file_name = os.path.normpath(file_path)
             try:
                 shutil.copyfile(self.path_to_matchplan_csv, file_name)
-                logging.info(f"Spielplan gespeichert unter: {file_name}")
+                logging.info(f"Match plan saved to: {file_name}")
                 QMessageBox.information(
                     self, "Einstellungen gespeichert", "Der Spielplan wurden erfolgreich gespeichert",
                     buttons=QMessageBox.Ok)
             except IOError as e:
-                logging.error(f"Fehler beim speichern des Spielplans: {e}")
-                QMessageBox.Critical(
+                logging.error(f"Error while saving match plan: {e}")
+                QMessageBox.critical(
                     self, "Fehler", "Der Spielplan konnten nicht gespeichert werden.",
                     buttons=QMessageBox.Ok)
 
@@ -452,11 +483,15 @@ def run_app():
 
 
 if __name__ == '__main__':
-    logging.basicConfig(filename='systemlog.log', level=logging.INFO)
+    FORMAT = "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"
+    logging.basicConfig(filename='logfile.log', filemode='w', level=logging.INFO, format=FORMAT)
+    logging.getLogger().addHandler(logging.StreamHandler())
     print("Ligaman Gui")
     print("===== V0.2 =====")
     print("Maintainer: Bjarne Andersen - b-andersen@arkaris.de")
     print("")
-    logger.info('Start Application')
+    logging.info('Start Application')
+    logging.info("===== V0.2 =====")
+    logging.info("Maintainer: Bjarne Andersen - b-andersen@arkaris.de")
     run_app()
 

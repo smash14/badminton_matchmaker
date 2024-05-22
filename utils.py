@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 from datetime import datetime
@@ -93,10 +94,10 @@ def get_script_folder():
     # determine if application is a script file or frozen exe
     application_path = ""
     if getattr(sys, 'frozen', False):
-        print("Program is an executable")
+        logging.info("Program is an executable")
         # application_path = os.path.dirname(sys.executable)
         application_path = os.path.dirname(__file__)
     elif __file__:
-        print("Program is native Python")
+        logging.info("Program is native Python")
         application_path = os.path.dirname(__file__)
     return application_path
