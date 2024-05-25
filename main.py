@@ -27,7 +27,7 @@ class Window(QtWidgets.QMainWindow):
         print(f"Path to settings JSON file: {self.path_to_settings_json}")
         print(f"Path to matchmaker_core: {self.path_to_matchmaker_core}")
         print(f"Path to Match Plan: {self.path_to_matchplan_csv}")
-        self.MatchPlan = Teams("teams.json")
+        self.MatchPlan = Teams()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.display_date_format = '%d.%m.%Y'
