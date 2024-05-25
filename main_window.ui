@@ -11,14 +11,14 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Badminton Matchmaker</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_5">
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab_1">
        <attribute name="title">
@@ -1080,7 +1080,7 @@
               </widget>
              </item>
              <item row="2" column="0">
-              <widget class="QTextEdit" name="textEdit_ligaman_pro_output">
+              <widget class="QTextEdit" name="textEdit_matchmaker_core_output">
                <property name="readOnly">
                 <bool>true</bool>
                </property>

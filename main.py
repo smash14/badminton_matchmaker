@@ -21,13 +21,13 @@ class Window(QtWidgets.QMainWindow):
         super(Window, self).__init__()
         self.today = datetime.today()
         script_path = get_script_folder()
-        self.path_to_settings_json = os.path.join(script_path, "tools", "teams.json")
-        self.path_to_ligaman_pro = os.path.join(script_path, "tools", "ligaman_pro.exe")
-        self.path_to_matchplan_csv = os.path.join(script_path, "tools", "spielplan.csv")
+        self.path_to_settings_json = os.path.join(script_path, "tools", "matchmaker_core", "bin", "teams.json")
+        self.path_to_matchmaker_core = os.path.join(script_path, "tools", "matchmaker_core", "bin", "matchmaker_core.exe")
+        self.path_to_matchplan_csv = os.path.join(script_path, "tools", "matchmaker_core", "bin", "spielplan.csv")
         print(f"Path to settings JSON file: {self.path_to_settings_json}")
-        print(f"Path to Ligaman Pro: {self.path_to_ligaman_pro}")
+        print(f"Path to matchmaker_core: {self.path_to_matchmaker_core}")
         print(f"Path to Match Plan: {self.path_to_matchplan_csv}")
-        self.MatchPlan = Teams()
+        self.MatchPlan = Teams("teams.json")
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.display_date_format = '%d.%m.%Y'
@@ -89,11 +89,11 @@ class Window(QtWidgets.QMainWindow):
         self.ui.pushButton_generate_matchplan.clicked.connect(self.generate_match_plan)
         self.ui.pushButton_download_matchplan.clicked.connect(self.save_match_plan)
 
-        # Connection to ligaman_pro process
+        # Connection to matchmaker_core process
         self.process = QtCore.QProcess(self)
         self.process.readyRead.connect(self.stdout_ready)  # alternative to use print('',flush=True) instead of stdout
-        self.process.started.connect(self.ligaman_process_started)
-        self.process.finished.connect(self.ligaman_process_finished)
+        self.process.started.connect(self.matchmaker_core_process_started)
+        self.process.finished.connect(self.matchmaker_core_process_finished)
 
         self.ui.progressBar_matchplan_generation.hide()
 
@@ -394,29 +394,29 @@ class Window(QtWidgets.QMainWindow):
                     logging.error("Error deleting old match plan file: %s - %s." % (e.filename, e.strerror))
             else:
                 return
-        self.ui.textEdit_ligaman_pro_output.clear()
+        self.ui.textEdit_matchmaker_core_output.clear()
         self.ui.pushButton_download_matchplan.setEnabled(False)
         self.ui.tableWidget_match_plan.setRowCount(0)
         self.MatchPlan.remove_settings_file(self.path_to_settings_json)  # remove old file
         self.MatchPlan.save_settings_file(self.path_to_settings_json)
         logging.info('Starting process: generate matchplan')
-        self.process.start(self.path_to_ligaman_pro)
+        self.process.start(self.path_to_matchmaker_core)
 
-    def append_ligaman_pro_text(self, text):
-        cursor = self.ui.textEdit_ligaman_pro_output.textCursor()
+    def append_matchmaker_core_text(self, text):
+        cursor = self.ui.textEdit_matchmaker_core_output.textCursor()
         cursor.movePosition(cursor.End)
         cursor.insertText(text)
         # self.output.ensureCursorVisible()
 
-    def ligaman_process_started(self):
+    def matchmaker_core_process_started(self):
         self.ui.progressBar_matchplan_generation.show()
         self.ui.progressBar_matchplan_generation.setValue(0)
         self.ui.pushButton_generate_matchplan.setEnabled(False)
-        self.append_ligaman_pro_text('Starte Spielplan Generierung' + '\n')
+        self.append_matchmaker_core_text('Starte Spielplan Generierung' + '\n')
 
-    def ligaman_process_finished(self):
+    def matchmaker_core_process_finished(self):
         self.ui.pushButton_generate_matchplan.setEnabled(True)
-        self.append_ligaman_pro_text('Spielplan Generierung beendet' + '\n')
+        self.append_matchmaker_core_text('Spielplan Generierung beendet' + '\n')
         self.ui.progressBar_matchplan_generation.setValue(100)
         logging.info("Process finished: generate matchplan")
         if os.path.exists(self.path_to_matchplan_csv):
@@ -433,14 +433,14 @@ class Window(QtWidgets.QMainWindow):
         text = str(self.process.readAllStandardOutput())
         text_clean = return_clean_stdout_text(text)
         for entry in text_clean:
-            logging.info(f"ligaman_pro stdout: {entry}")
+            logging.info(f"matchmaker_core stdout: {entry}")
             if "RUN" in entry:
                 try:
                     self.ui.progressBar_matchplan_generation.setValue(int(entry[4:]))  # Remove "RUN:"
                 except Exception:
                     pass
             else:
-                self.append_ligaman_pro_text(entry + '\n')
+                self.append_matchmaker_core_text(entry + '\n')
 
     def save_match_plan(self):
         file_path, _ = QFileDialog.getSaveFileName(self, "Spielplan speichern", "", "(*.csv)")
@@ -486,7 +486,7 @@ if __name__ == '__main__':
     FORMAT = "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"
     logging.basicConfig(filename='logfile.log', filemode='w', level=logging.INFO, format=FORMAT)
     logging.getLogger().addHandler(logging.StreamHandler())
-    print("Ligaman Gui")
+    print("Matchmaker Gui")
     print("===== V0.2 =====")
     print("Maintainer: Bjarne Andersen - b-andersen@arkaris.de")
     print("")

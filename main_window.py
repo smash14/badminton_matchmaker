@@ -403,10 +403,10 @@ class Ui_MainWindow(object):
         self.progressBar_matchplan_generation.setProperty("value", 24)
         self.progressBar_matchplan_generation.setObjectName("progressBar_matchplan_generation")
         self.gridLayout.addWidget(self.progressBar_matchplan_generation, 3, 0, 1, 1)
-        self.textEdit_ligaman_pro_output = QtWidgets.QTextEdit(self.groupBox_5)
-        self.textEdit_ligaman_pro_output.setReadOnly(True)
-        self.textEdit_ligaman_pro_output.setObjectName("textEdit_ligaman_pro_output")
-        self.gridLayout.addWidget(self.textEdit_ligaman_pro_output, 2, 0, 1, 1)
+        self.textEdit_matchmaker_core_output = QtWidgets.QTextEdit(self.groupBox_5)
+        self.textEdit_matchmaker_core_output.setReadOnly(True)
+        self.textEdit_matchmaker_core_output.setObjectName("textEdit_matchmaker_core_output")
+        self.gridLayout.addWidget(self.textEdit_matchmaker_core_output, 2, 0, 1, 1)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.pushButton_generate_matchplan = QtWidgets.QPushButton(self.groupBox_5)
@@ -465,12 +465,12 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuDatei.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(3)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Badminton Matchmaker"))
         self.groupBox.setTitle(_translate("MainWindow", "Zeitplan für Hin- und Rückrunde"))
         self.checkBox_start_date_first_round_activate.setText(_translate("MainWindow", "Frühesten Starttermin der Hinrunde vorgeben:"))
         self.checkBox_end_date_first_round_activate.setText(_translate("MainWindow", "Spätesten Endtermin der Hinrunde vorgeben:"))
@@ -519,13 +519,3 @@ class Ui_MainWindow(object):
         self.action_save_settings_file_as.setText(_translate("MainWindow", "Spielplan Einstellungen Speichern"))
         self.action_reset_settings_file.setText(_translate("MainWindow", "Alle Einstellungen Zurücksetzen"))
         self.action_open_settings_file.setText(_translate("MainWindow", "Spielplan Einstellungen Öffnen"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
