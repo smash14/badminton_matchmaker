@@ -1,0 +1,3 @@
+[submodule "tools/matchmaker_core"]
+	path = tools/matchmaker_core
+	url = git@github.com:smash14/matchmaker_core.git
