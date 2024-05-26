@@ -5,7 +5,10 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[('tools/matchmaker_core/bin/matchmaker_core.exe', 'tools/matchmaker_core/bin')],
-    datas=[],
+    datas=[
+        ('data/', 'data/'),
+        ('C:\\develop\\ligaman_gui\\data\\logo\\Favicons\\favicon.ico', '.')
+        ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -27,6 +30,7 @@ exe = EXE(
     strip=False,
     upx=True,
     console=False,
+    icon='C:\\develop\\ligaman_gui\\data\\logo\\Favicons\\favicon.ico',
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,

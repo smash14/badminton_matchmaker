@@ -1,6 +1,6 @@
 import os.path
 
-from PyQt5 import QtWidgets, QtCore, uic
+from PyQt5 import QtWidgets, QtCore, uic, QtGui
 from PyQt5.QtCore import QDate
 from PyQt5.QtWidgets import QInputDialog, QMessageBox, QFileDialog, QTableWidgetItem, QHeaderView
 from main_window import Ui_MainWindow
@@ -14,6 +14,8 @@ from teamsParser import Teams
 
 logger = logging.getLogger(__name__)
 EXPERT_SETTINGS_TAB = 2
+VERSION = "V0.5"
+PYQTVERSION = "5.15.9"
 
 
 class Window(QtWidgets.QMainWindow):
@@ -24,6 +26,7 @@ class Window(QtWidgets.QMainWindow):
         self.path_to_settings_json = os.path.join(script_path, "tools", "matchmaker_core", "bin", "teams.json")
         self.path_to_matchmaker_core = os.path.join(script_path, "tools", "matchmaker_core", "bin", "matchmaker_core.exe")
         self.path_to_matchplan_csv = os.path.join(script_path, "tools", "matchmaker_core", "bin", "spielplan.csv")
+        path_to_logo = os.path.join(script_path, "data", "logo", "logo.png")  # SVG looks ugly
         print(f"Path to settings JSON file: {self.path_to_settings_json}")
         print(f"Path to matchmaker_core: {self.path_to_matchmaker_core}")
         print(f"Path to Match Plan: {self.path_to_matchplan_csv}")
@@ -33,10 +36,18 @@ class Window(QtWidgets.QMainWindow):
         self.display_date_format = '%d.%m.%Y'
         self.current_selection_team = None
 
+        logo = QtGui.QPixmap(path_to_logo)
+        logo = logo.scaledToWidth(400, QtCore.Qt.SmoothTransformation)
+        self.ui.label_logo.setPixmap(logo)
+        self.ui.label_logo.setScaledContents(False)
+        self.ui.label_logo.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+        self.ui.label_logo.setObjectName("label_logo")
+
         # TAB 00 - "Main Menu"
         self.ui.action_save_settings_file_as.triggered.connect(self.save_settings_file_as)
         self.ui.action_reset_settings_file.triggered.connect(self.reset_settings_file)
         self.ui.action_open_settings_file.triggered.connect(self.open_settings_file)
+        self.ui.action_about_badminton_matchmaker.triggered.connect(self.show_about_dialog)
 
         # TAB 01 - "Globale Einstellungen"
         self.ui.checkBox_start_date_first_round_activate.clicked.connect(self.set_start_date_first_round)
@@ -474,10 +485,25 @@ class Window(QtWidgets.QMainWindow):
         self.ui.tableWidget_match_plan.horizontalHeader().setStretchLastSection(True)
         self.ui.tableWidget_match_plan.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
+    def show_about_dialog(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setTextFormat(QtCore.Qt.RichText)
+        msg.setText(f"Badminton Matchmaker {VERSION} - <a href='https://www.paypal.com/paypalme/kroetenwandern/2,10'>Gib mir ein Bier aus</a>")
+        msg.setInformativeText("Badminton Matchmaker erstellt automatisch Spielpläne für eine Punktspielsaison.\n"
+                               "Wenn dir dieses Tool gefällt, gib mir gerne ein Bier aus!\n\n"
+                               "Maintainer:\nBjarne Andersen\nb-andersen@arkaris.de\n\n"
+                               f"Dieses Programm nutzt PyQt5 {PYQTVERSION}, veröffentlicht unter GPL v3")
+        msg.setWindowTitle("Über Badminton Matchmaker")
+        msg.exec_()
 
 def run_app():
     app = QtWidgets.QApplication(sys.argv)
     win = Window()
+    logo_path = os.path.join(get_script_folder(), "data", "logo", "windows", "StoreLogo.scale-150.png")
+    icon = QtGui.QIcon()
+    icon.addPixmap(QtGui.QPixmap(logo_path), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+    win.setWindowIcon(icon)
     win.show()
     sys.exit(app.exec_())
 
@@ -487,11 +513,11 @@ if __name__ == '__main__':
     logging.basicConfig(filename='logfile.log', filemode='w', level=logging.INFO, format=FORMAT)
     logging.getLogger().addHandler(logging.StreamHandler())
     print("Matchmaker Gui")
-    print("===== V0.2 =====")
+    print(f"===== {VERSION} =====")
     print("Maintainer: Bjarne Andersen - b-andersen@arkaris.de")
     print("")
     logging.info('Start Application')
-    logging.info("===== V0.2 =====")
+    logging.info(f"===== {VERSION} =====")
     logging.info("Maintainer: Bjarne Andersen - b-andersen@arkaris.de")
     run_app()
 
