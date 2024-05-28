@@ -4,7 +4,7 @@
 a = Analysis(
     ['main.py'],
     pathex=[],
-    binaries=[('tools/matchmaker_core/bin/matchmaker_core.exe', 'tools/matchmaker_core/bin')],
+    binaries=[('tools/matchmaker_core/bin/onedir/', 'tools/matchmaker_core/bin/onedir')],
     datas=[
         ('data/', 'data/'),
         ('C:\\develop\\ligaman_gui\\data\\logo\\Favicons\\favicon.ico', '.')

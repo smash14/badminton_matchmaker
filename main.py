@@ -14,7 +14,7 @@ from teamsParser import Teams
 
 logger = logging.getLogger(__name__)
 EXPERT_SETTINGS_TAB = 2
-VERSION = "V0.5"
+VERSION = "V0.6"
 PYQTVERSION = "5.15.9"
 
 
@@ -23,9 +23,9 @@ class Window(QtWidgets.QMainWindow):
         super(Window, self).__init__()
         self.today = datetime.today()
         script_path = get_script_folder()
-        self.path_to_settings_json = os.path.join(script_path, "tools", "matchmaker_core", "bin", "teams.json")
-        self.path_to_matchmaker_core = os.path.join(script_path, "tools", "matchmaker_core", "bin", "matchmaker_core.exe")
-        self.path_to_matchplan_csv = os.path.join(script_path, "tools", "matchmaker_core", "bin", "spielplan.csv")
+        self.path_to_settings_json = os.path.join(script_path, "tools", "matchmaker_core", "bin", "onefile", "teams.json")
+        self.path_to_matchmaker_core = os.path.join(script_path, "tools", "matchmaker_core", "bin", "onefile", "matchmaker_core.exe")
+        self.path_to_matchplan_csv = os.path.join(script_path, "tools", "matchmaker_core", "bin", "onefile", "spielplan.csv")
         path_to_logo = os.path.join(script_path, "data", "logo", "logo.png")  # SVG looks ugly
         print(f"Path to settings JSON file: {self.path_to_settings_json}")
         print(f"Path to matchmaker_core: {self.path_to_matchmaker_core}")
