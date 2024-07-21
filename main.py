@@ -14,7 +14,7 @@ from teamsParser import Teams
 
 logger = logging.getLogger(__name__)
 EXPERT_SETTINGS_TAB = 2
-VERSION = "V0.6"
+VERSION = "V0.7"
 PYQTVERSION = "5.15.9"
 
 
@@ -157,7 +157,7 @@ class Window(QtWidgets.QMainWindow):
     # TAB 01 - "Globale Einstellungen"
     def refresh_tab_global_settings(self):
         start_date_first_round = self.MatchPlan.start_date_first_round
-        start_date_second_round = self.MatchPlan.start_date_first_round
+        start_date_second_round = self.MatchPlan.start_date_second_round
         end_date_first_round = self.MatchPlan.start_date_first_round
 
         if start_date_first_round is None:
