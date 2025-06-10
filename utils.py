@@ -89,15 +89,21 @@ def return_clean_stdout_text(text):
     text_clean = list(filter(None, text_clean))
     return text_clean
 
+def is_program_an_executable():
+    """
+    Check if the program is running as a frozen executable or as a native Python script.
+    :return: True if running as an executable, False otherwise.
+    """
+    return getattr(sys, 'frozen', False) or hasattr(sys, '_MEIPASS')
 
 def get_script_folder():
     # determine if application is a script file or frozen exe
     application_path = ""
-    if getattr(sys, 'frozen', False):
+    if is_program_an_executable():
         logging.info("Program is an executable")
         # application_path = os.path.dirname(sys.executable)
         application_path = os.path.dirname(__file__)
-    elif __file__:
+    else:
         logging.info("Program is native Python")
         application_path = os.path.dirname(__file__)
     return application_path

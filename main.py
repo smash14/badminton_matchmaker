@@ -5,16 +5,19 @@ from PyQt5.QtCore import QDate
 from PyQt5.QtWidgets import QInputDialog, QMessageBox, QFileDialog, QTableWidgetItem, QHeaderView
 from main_window import Ui_MainWindow
 from datetime import datetime
-from utils import convert_qt_date_to_datetime, convert_date_string_to_datetime, return_clean_stdout_text, get_script_folder
+from utils import (convert_qt_date_to_datetime, convert_date_string_to_datetime, return_clean_stdout_text,
+                   get_script_folder, is_program_an_executable)
 import sys
 import shutil
 import logging
 import pandas as pd
 from teamsParser import Teams
+if is_program_an_executable():
+    import pyi_splash
 
 logger = logging.getLogger(__name__)
 EXPERT_SETTINGS_TAB = 2
-VERSION = "V0.7"
+VERSION = "V0.8"
 PYQTVERSION = "5.15.9"
 
 
@@ -509,6 +512,8 @@ def run_app():
 
 
 if __name__ == '__main__':
+    if is_program_an_executable():
+        pyi_splash.close()
     FORMAT = "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"
     logging.basicConfig(filename='logfile.log', filemode='w', level=logging.INFO, format=FORMAT)
     logging.getLogger().addHandler(logging.StreamHandler())
